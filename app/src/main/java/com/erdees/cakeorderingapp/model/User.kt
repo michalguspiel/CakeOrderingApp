@@ -1,4 +1,4 @@
-package com.example.cakeorderingapp.model
+package com.erdees.cakeorderingapp.model
 
 data class User(
     val emojis: String = "",

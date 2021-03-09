@@ -1,4 +1,4 @@
-package com.example.cakeorderingapp
+package com.erdees.cakeorderingapp
 
 import org.junit.Test
 
