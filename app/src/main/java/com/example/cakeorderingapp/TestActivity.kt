@@ -4,12 +4,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.cakeorderingapp.model.User
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import org.w3c.dom.Text
+
+class UserViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
 class TestActivity: AppCompatActivity() {
 
@@ -20,11 +30,38 @@ class TestActivity: AppCompatActivity() {
         const val TAG = "TestActivity"
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.another_activity_view)
 
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+
         auth = Firebase.auth
+        // Access a Cloud Firestore instance from your Activity
+        val db = Firebase.firestore
+        val query = db.collection("users")
+        val options = FirestoreRecyclerOptions.Builder<User>().setQuery(query, User::class.java)
+                .setLifecycleOwner(this).build()
+
+        val adapter = object : FirestoreRecyclerAdapter<User, UserViewHolder>(options){
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
+                val view = LayoutInflater.from(this@TestActivity).inflate(android.R.layout.simple_list_item_2,parent,false)
+                return UserViewHolder(view)
+            }
+
+            override fun onBindViewHolder(holder: UserViewHolder, position: Int, model: User) {
+                val text1 = holder.itemView.findViewById<TextView>(android.R.id.text1)
+                val text2 = holder.itemView.findViewById<TextView>(android.R.id.text2)
+                text1.text = model.name
+                text2.text = model.emojis
+            }
+
+        }
+
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
 
     }
         override fun onCreateOptionsMenu(menu: Menu?): Boolean {
