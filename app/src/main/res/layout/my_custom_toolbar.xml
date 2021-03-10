@@ -2,8 +2,10 @@
 <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_toolbar"
     android:layout_width="match_parent"
-    android:layout_height="62dp">
+    android:layout_height="62dp"
+    android:background="@color/pink_500">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -23,30 +25,34 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="-19dp" />
 
-            <TextView
-                android:id="@+id/textView3"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Michal's bakery"
-                android:textColor="@color/gray"
-                android:textSize="24sp"
-                android:textStyle="bold"
+                android:layout_marginEnd="24dp"
+                android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imageView"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.421" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <ImageButton
-                android:id="@+id/cart_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:background="@null"
-                android:src="@drawable/ic_baseline_shopping_cart_24"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView3"
-                app:layout_constraintTop_toTopOf="parent" />
+                <ImageButton
+                    android:id="@+id/cart_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@null"
+                    android:paddingRight="8dp"
+                    android:src="@drawable/ic_baseline_shopping_cart_24" />
+
+                <ImageButton
+                    android:id="@+id/menu_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:background="@null"
+                    android:src="@drawable/ic_baseline_menu_24" />
+            </LinearLayout>
+
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

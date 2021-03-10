@@ -5,6 +5,7 @@ data class PresentedItem(
         val description: String = "",
         val pictureUrl: String ="",
         val type: Long = 0,
-        val picturesArray: List<String> = listOf()
+        val picturesArray: List<String> = listOf(),
+        val mail: String = ""
 ) {
 }

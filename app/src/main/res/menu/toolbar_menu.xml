@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/mi_account"
+        android:title="My account" />
+    <item
+        android:id="@+id/mi_orders"
+        android:title="My orders" />
+    <item
+        android:id="@+id/mi_calendar"
+        android:title="Special's calendar" />
+    <item
+        android:id="@+id/mi_settings"
+        android:title="Settings" />
     <item
         android:id="@+id/mi_logout"
         android:title="Logout" />
-    <item
-        android:id="@+id/mi_login"
-        android:title="Login"/>
+
 
 </menu>

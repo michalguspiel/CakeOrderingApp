@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Cake Ordering App</string>
+
+    <string name="my_account"> My Account</string>
+    <string name="login"> Login</string>
+    <string name="logout"> Logout</string>
+    <string name="cart"> Shopping cart</string>
+    <string name="orders"> My orders</string>
+    <string name="settings"> Settings</string>
+
 </resources>

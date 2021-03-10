@@ -78,7 +78,7 @@ class TestActivity: AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.mi_logout -> {
+            R.id.mi_settings -> {
                 Log.i(TAG, "LOGOUT")
                 auth.signOut()
                 val logoutIntent = Intent(this,MainActivity::class.java)
