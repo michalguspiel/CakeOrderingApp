@@ -40,29 +40,29 @@ class TestActivity: AppCompatActivity() {
         val db = Firebase.firestore
         val query = db.collection("users")
         val options = FirestoreRecyclerOptions.Builder<User>().setQuery(query, User::class.java)
-                .setLifecycleOwner(this).build()
+        .setLifecycleOwner(this).build()
 
         val testQuery = db.collection("productsForRecycler")
         testQuery.get()
-                .addOnSuccessListener { result ->
-                    result.forEach { Log.i(TAG,result.documents.toString()) }
-                }
-                .addOnFailureListener { exception ->
-                    Log.d(TAG, "Error getting documents: ", exception)
-                }
+        .addOnSuccessListener { result ->
+        result.forEach { Log.i(TAG,result.documents.toString()) }
+        }
+        .addOnFailureListener { exception ->
+        Log.d(TAG, "Error getting documents: ", exception)
+        }
 
         val adapter = object : FirestoreRecyclerAdapter<User, UserViewHolder>(options){
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
-                val view = LayoutInflater.from(this@TestActivity).inflate(android.R.layout.simple_list_item_2,parent,false)
-                return UserViewHolder(view)
-            }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
+        val view = LayoutInflater.from(this@TestActivity).inflate(android.R.layout.simple_list_item_2,parent,false)
+        return UserViewHolder(view)
+        }
 
-            override fun onBindViewHolder(holder: UserViewHolder, position: Int, model: User) {
-                val text1 = holder.itemView.findViewById<TextView>(android.R.id.text1)
-                val text2 = holder.itemView.findViewById<TextView>(android.R.id.text2)
-                text1.text = model.name
-                text2.text = model.emojis
-            }
+        override fun onBindViewHolder(holder: UserViewHolder, position: Int, model: User) {
+        val text1 = holder.itemView.findViewById<TextView>(android.R.id.text1)
+        val text2 = holder.itemView.findViewById<TextView>(android.R.id.text2)
+        text1.text = model.name
+        text2.text = model.emojis
+        }
 
         }
 
@@ -70,25 +70,26 @@ class TestActivity: AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
 
-    }
+        }
         override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-            menuInflater.inflate(R.menu.toolbar_menu, menu)
-            return true
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        return true
         }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.mi_settings -> {
-                Log.i(TAG, "LOGOUT")
-                auth.signOut()
-                val logoutIntent = Intent(this,MainActivity::class.java)
-                logoutIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(logoutIntent)
-            }
-            else -> Log.i(TAG,"ERROR")
+        R.id.mi_settings -> {
+        Log.i(TAG, "LOGOUT")
+        auth.signOut()
+        val logoutIntent = Intent(this,MainActivity::class.java)
+        logoutIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(logoutIntent)
+        }
+        else -> Log.i(TAG,"ERROR")
         }
 
         return super.onOptionsItemSelected(item)
-    }
+        }
+
 
 }

@@ -17,11 +17,8 @@
         tools:layout_editor_absoluteX="16dp"
         android:paddingBottom="55dp"
         android:paddingTop="62dp"
-        />
-
-    <include
-        layout="@layout/my_custom_toolbar"
-        />
+        >
+    </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/mainRecyclerView"
@@ -30,6 +27,10 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="214dp"
         android:layout_marginTop="62dp"/>
+
+    <include
+        layout="@layout/my_custom_toolbar"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

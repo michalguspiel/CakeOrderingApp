@@ -1,44 +1,36 @@
 package com.erdees.cakeorderingapp
 
-import android.accounts.Account
 import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+
+import androidx.fragment.app.FragmentTransaction
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.erdees.cakeorderingapp.adapter.MainActivityRecyclerAdapter
 import com.erdees.cakeorderingapp.model.PresentedItem
+import com.facebook.login.LoginManager
+import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.mikepenz.materialdrawer.holder.BadgeStyle
-import com.mikepenz.materialdrawer.holder.StringHolder
-import com.mikepenz.materialdrawer.model.AbstractDrawerItem
-import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
-import com.mikepenz.materialdrawer.model.interfaces.nameRes
-import com.mikepenz.materialdrawer.model.interfaces.withIdentifier
-import com.mikepenz.materialdrawer.util.*
-import com.mikepenz.materialdrawer.widget.AccountHeaderView
-import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
-import io.grpc.okhttp.internal.framed.Header
+
 
 /**
  * Icons by monkik, Freepik
@@ -47,45 +39,48 @@ import io.grpc.okhttp.internal.framed.Header
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private var isUserLogedIn: Boolean = false
     private lateinit var cartButton: ImageButton
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var menuButton: ImageButton
     private lateinit var sideNav: NavigationView
-    private lateinit var welcomeTextView : TextView
-    private lateinit var footer : Button
+    private lateinit var welcomeTextView: TextView
+    private lateinit var footer: Button
+
 
     override fun onStart() {
         super.onStart()
+        Log.i(TAG, "on start")
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
         updateUI(currentUser)
     }
 
-    private fun updateUI(user: FirebaseUser?) {
+    override fun onResume() {
+        Log.i(TAG,"on resume")
+        super.onResume()
+        val currentUser = auth.currentUser
+        updateUI(currentUser)
+    }
+
+    fun updateUI(user: FirebaseUser?) {
+        Log.i(TAG,"UPDATE UI CASTED")
         if (user == null) {
             Log.i(TAG, "user update ui failed")
-            isUserLogedIn = false
             cartButton.visibility = View.GONE
             sideNav.menu.findItem(R.id.mi_logout).isVisible = false
-
             return
         } else {
-            isUserLogedIn = true
-            welcomeTextView.text =  "Welcome " + user.displayName
+            welcomeTextView.text = "Welcome " + user.displayName
             cartButton.visibility = View.VISIBLE
             sideNav.menu.findItem(R.id.mi_logout).isVisible = true
             footer.visibility = View.GONE
             drawerLayout.closeDrawer(Gravity.RIGHT)
-
         }
-
     }
 
 
     private companion object {
         const val TAG = "MainActivity"
-        const val RC_GOOGLE_SIGN_IN = 7941
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,41 +95,42 @@ class MainActivity : AppCompatActivity() {
         /**Bind buttons*/
         cartButton = findViewById(R.id.cart_button)
         menuButton = findViewById(R.id.menu_button)
-        footer = findViewById<Button>(R.id.footer_item_1)
-//        welcomeTextView = findViewById<TextView>(R.id.user_name_header)
+        footer = findViewById(R.id.footer_item_1)
 
-        /**Functions
-         * */
-        fun login() {
-            Log.i(TAG, "LOGIN")
-            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build()
-            val googleSignInClient = GoogleSignIn.getClient(this, gso)
-            auth = Firebase.auth  // Initialize Firebase Auth
-            // pop dialog with login options. For now just login
-            val signInIntent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN)
-        }
-
+        /**Functions*/
         fun logout() {
             Log.i(TAG, "LOGOUT")
-            auth.signOut()
-            isUserLogedIn = false
+            Firebase.auth.signOut()
+            LoginManager.getInstance().logOut()
             welcomeTextView.text = ""
             footer.visibility = View.VISIBLE
             cartButton.visibility = View.GONE
         }
 
+        fun openFragment(fragment: Fragment, fragmentTag: String) {
+            val backStateName = fragment.javaClass.name
+            val manager: FragmentManager = supportFragmentManager
+            val fragmentPopped = manager.popBackStackImmediate(backStateName, 0)
+            if (!fragmentPopped && manager.findFragmentByTag(fragmentTag) == null) { //if fragment isn't in backStack, create it
+                val ft: FragmentTransaction = manager.beginTransaction()
+                ft.replace(R.id.container, fragment, fragmentTag)
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                ft.addToBackStack(backStateName)
+                ft.commit()
+            }
+        }
+
+        fun openLoginActivity(){
+            val loginActivity = Intent(this, LoginActivity::class.java)
+            startActivity(loginActivity, savedInstanceState)
+        }
 
         /**Buttons functionality*/
         menuButton.setOnClickListener { drawerLayout.openDrawer(Gravity.RIGHT) }
 
         footer.setOnClickListener {
-            login()
 
-
+           openLoginActivity()
         }
 
         /**Firebase*/
@@ -152,25 +148,19 @@ class MainActivity : AppCompatActivity() {
             .build()
         // The options for the adapter combine the paging configuration with query information
         // and application-specific options for lifecycle, etc.
-        // The options for the adapter combine the paging configuration with query information
-        // and application-specific options for lifecycle, etc.
         val options = FirestorePagingOptions.Builder<PresentedItem>()
             .setLifecycleOwner(this)
             .setQuery(presentationQuery, config, PresentedItem::class.java)
             .build()
-
         /**Setup recycler view*/
         val adapter = MainActivityRecyclerAdapter(this, options, screenWidth)
         val recyclerView = findViewById<RecyclerView>(R.id.mainRecyclerView)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-
         /**Side drawer menu */
         drawerLayout = findViewById(R.id.drawer_layout)
-
         val toggle = ActionBarDrawerToggle(this, drawerLayout, 0, 0)
-
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
@@ -179,8 +169,13 @@ class MainActivity : AppCompatActivity() {
             NavigationView.OnNavigationItemSelectedListener { item: MenuItem ->
                 when (item.itemId) {
                     R.id.mi_account -> {
+                        if(auth.currentUser == null) openLoginActivity()
+                        else Toast.makeText(this,"Account",Toast.LENGTH_SHORT).show()
+
                     }
                     R.id.mi_orders -> {
+                        if(auth.currentUser == null) openLoginActivity()
+                        else Toast.makeText(this,"Orders!",Toast.LENGTH_SHORT).show()
                     }
                     R.id.mi_settings -> {
                     }
@@ -239,43 +234,6 @@ class MainActivity : AppCompatActivity() {
 
      */
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_GOOGLE_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            try {
-                // Google Sign In was successful, authenticate with Firebase
-                val account = task.getResult(ApiException::class.java)!!
-                Log.d(TAG, "firebaseAuthWithGoogle:" + account.id)
-                firebaseAuthWithGoogle(account.idToken!!)
-            } catch (e: ApiException) {
-                // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e)
-            }
-        }
-    }
 
-
-    private fun firebaseAuthWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInWithCredential:success")
-                    val user = auth.currentUser
-                    updateUI(user)
-                    isUserLogedIn = true
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    // ...
-                    Toast.makeText(this, "Authentication Failed.", Toast.LENGTH_SHORT).show()
-                    updateUI(null)
-                    isUserLogedIn = false
-                }
-            }
-    }
 }
 

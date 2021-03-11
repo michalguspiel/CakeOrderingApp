@@ -7,5 +7,11 @@
     <string name="cart"> Shopping cart</string>
     <string name="orders"> My orders</string>
     <string name="settings"> Settings</string>
+    <string name="facebook_app_id">368088240842474</string>
+    <string name="fb_login_protocol_scheme">fb368088240842474</string>
+    <string name="facebook_application_id" translatable="false">368088240842474</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb368088240842474</string>
+
+
 
 </resources>
