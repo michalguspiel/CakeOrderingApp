@@ -22,8 +22,13 @@
         <activity
             android:name="com.erdees.cakeorderingapp.LoginActivity"
             android:theme="@style/Theme.CakeOrderingApp">
-
         </activity>
+        <activity
+            android:name="com.erdees.cakeorderingapp.MailLoginActivity"
+            android:theme="@style/Theme.CakeOrderingApp" />
+        <activity
+            android:name="com.erdees.cakeorderingapp.SignUpActivity"
+            android:theme="@style/Theme.CakeOrderingApp" />
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
 />

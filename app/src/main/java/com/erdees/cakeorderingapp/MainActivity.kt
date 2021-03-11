@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             sideNav.menu.findItem(R.id.mi_logout).isVisible = false
             return
         } else {
-            welcomeTextView.text = "Welcome " + user.displayName
+            welcomeTextView.text = setWelcomeMsg(user)
             cartButton.visibility = View.VISIBLE
             sideNav.menu.findItem(R.id.mi_logout).isVisible = true
             footer.visibility = View.GONE
@@ -78,6 +78,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+fun setWelcomeMsg(user: FirebaseUser?): String{
+    return if (user?.displayName != null ) "Welcome " + user.displayName
+    else "Welcome " + user?.email
+}
 
     private companion object {
         const val TAG = "MainActivity"
@@ -129,8 +133,7 @@ class MainActivity : AppCompatActivity() {
         menuButton.setOnClickListener { drawerLayout.openDrawer(Gravity.RIGHT) }
 
         footer.setOnClickListener {
-
-           openLoginActivity()
+            openLoginActivity()
         }
 
         /**Firebase*/

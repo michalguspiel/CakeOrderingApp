@@ -1,56 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/pink_200"
     android:fitsSystemWindows="true"
 
     >
 
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include"
-        android:orientation="vertical"
-        >
-
-
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/email_sign_button"
+            style="@style/FirebaseUI.Button.AccountChooser.EmailButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:foregroundGravity="center"
-            android:text="Login with email"
-            style="@style/FirebaseUI.Button.AccountChooser.EmailButton"
-            />
+            android:text="Login with email" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/google_sign_button"
             style="@style/FirebaseUI.Button.AccountChooser.GoogleButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:foregroundGravity="center"
-            android:text="Login with google"/>
+            android:text="Login with google" />
+
         <com.facebook.login.widget.LoginButton
             android:id="@+id/facebook_sign_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:foregroundGravity="center"
-            />
-
-
+            android:foregroundGravity="center" />
 
 
     </LinearLayout>
 
-    <include
-        android:id="@+id/include"
-        layout="@layout/my_custom_toolbar" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="110dp"
+        android:rotation="-27"
+        android:rotationX="35"
+        android:rotationY="26"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toStartOf="@+id/linearLayout"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_cup_cake" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="55dp"
+        android:rotation="12"
+        android:rotationX="35"
+        android:rotationY="-30"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_cake_slice" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,15 +13,12 @@ import androidx.appcompat.widget.AppCompatButton
 import com.facebook.*
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.facebook.appevents.AppEventsLogger
-import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
 import com.google.firebase.auth.FacebookAuthProvider
@@ -30,6 +27,11 @@ class LoginActivity: AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var  callbackManager: CallbackManager
+
+    override fun onResume() {
+        if(auth.currentUser != null ) this.finish()
+        super.onResume()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_activity)
@@ -49,13 +51,7 @@ class LoginActivity: AppCompatActivity() {
             val signInIntent = googleSignInClient.signInIntent
             startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN)
         }
-
         auth = Firebase.auth
-        fun fbLogin(){
-            Log.i(TAG,"FB LOGIN")
-
-
-        }
 
         /**Firebase*/
         val db = Firebase.firestore
@@ -64,22 +60,25 @@ class LoginActivity: AppCompatActivity() {
          * this is workaround cause otherwise status bar is gray for no reason */
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        /**Hide buttons from toolbar*/
-        findViewById<ImageButton>(R.id.cart_button).visibility = View.GONE
-        findViewById<ImageButton>(R.id.menu_button).visibility = View.GONE
+
 
         /**Binders*/
         val googleSignBtn = findViewById<AppCompatButton>(R.id.google_sign_button)
         val fbSignBtn = findViewById<LoginButton>(R.id.facebook_sign_button)
-        //val mailSignBtn = findViewById<Button>(R.id.mail_sign_button)
+        val mailSignBtn = findViewById<Button>(R.id.email_sign_button)
 
         /**Buttons functionality*/
+
+        mailSignBtn.setOnClickListener {
+            val mailIntent = Intent(this,MailLoginActivity::class.java)
+            startActivity(mailIntent,savedInstanceState)
+        }
 
         googleSignBtn.setOnClickListener {
             googlelogin()
         }
         callbackManager = CallbackManager.Factory.create()
-        fbSignBtn.setReadPermissions("email", "public_profile")
+        fbSignBtn.setPermissions("email", "public_profile")
         fbSignBtn.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
                 Log.d(TAG, "facebook:onSuccess:$loginResult")
