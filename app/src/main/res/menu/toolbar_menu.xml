@@ -8,6 +8,10 @@
         android:id="@+id/mi_orders"
         android:title="My orders" />
     <item
+        android:id="@+id/mi_products"
+        android:title="Pastries"
+        />
+    <item
         android:id="@+id/mi_calendar"
         android:title="Special's calendar" />
     <item

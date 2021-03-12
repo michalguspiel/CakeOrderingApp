@@ -76,7 +76,7 @@ class MyAccountAdapter(val user: FirebaseUser,val activity: Activity, val parent
                     } else {
                         Log.d("TAG", "Current data: null")
                         docRef.get().addOnSuccessListener {
-                            addressTextView.text = it["address"].toString()
+                            addressTextView.text = it["address"].toString() +" "+ it["address2"].toString()
                             postcodeTextView.text = it["postCode"].toString()
                             cityTextView.text = it["city"].toString()
                         }

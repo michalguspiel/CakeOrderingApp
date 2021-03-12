@@ -41,7 +41,7 @@ class MainFragment : Fragment() {
 
         /**Get products to populate main recycler view*/
         val presentationQuery = db.collection("productsForRecycler")
-            .orderBy("type", Query.Direction.ASCENDING)
+            .orderBy("order", Query.Direction.ASCENDING)
             .limit(10)
         val config = PagedList.Config.Builder()
             .setEnablePlaceholders(false)
@@ -55,7 +55,7 @@ class MainFragment : Fragment() {
             .setQuery(presentationQuery, config, PresentedItem::class.java)
             .build()
         /**Setup recycler view*/
-        val adapter = MainActivityRecyclerAdapter(requireActivity(), options, screenWidth)
+        val adapter = MainActivityRecyclerAdapter(requireActivity(), options, screenWidth,parentFragmentManager)
         val recyclerView = view.findViewById<RecyclerView>(R.id.mainRecyclerView)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireActivity())

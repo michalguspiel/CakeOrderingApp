@@ -33,7 +33,8 @@ class EditAddressDialog : DialogFragment() {
 
         val auth = Firebase.auth
         val user = auth.currentUser
-        val db   = Firebase.firestore
+        val db = Firebase.firestore
+
         /**Binders*/
         val addressTextField = view.findViewById<EditText>(R.id.edit_address_field)
         val addressTextField2 = view.findViewById<EditText>(R.id.edit_address_field_2)
@@ -43,14 +44,24 @@ class EditAddressDialog : DialogFragment() {
         val submitButton = view.findViewById<Button>(R.id.edit_address_button_submit)
 
 
+        val docRef = db.collection("users").document(user.uid)
+        docRef.get().addOnSuccessListener {
+            addressTextField.setText(it["address"].toString())
+            addressTextField2.setText(it["address2"].toString())
+            postCodeTextField.setText(it["postCode"].toString())
+            cityTextField.setText(it["city"].toString())
+        }
+
 
         submitButton.setOnClickListener {
-            val address = addressTextField.text.toString() + " " + addressTextField2.text.toString()
-        db.collection("users").document(user.uid)
-            .update("address",address,
-                "postCode",postCodeTextField.text.toString(),
-                "city",cityTextField.text.toString())
-            Toast.makeText(requireContext(),"Updated address",Toast.LENGTH_SHORT).show()
+            docRef
+                .update(
+                    "address", addressTextField.text.toString(),
+                    "address2",addressTextField2.text.toString(),
+                    "postCode", postCodeTextField.text.toString(),
+                    "city", cityTextField.text.toString()
+                )
+            Toast.makeText(requireContext(), "Updated address", Toast.LENGTH_SHORT).show()
             this.dismiss()
         }
 

@@ -17,6 +17,8 @@ import androidx.fragment.app.FragmentTransaction
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.fragments.MainFragment
 import com.erdees.cakeorderingapp.fragments.MyAccountFragment
+import com.erdees.cakeorderingapp.fragments.ProductsFragment
+import com.erdees.cakeorderingapp.openFragment
 import com.facebook.login.LoginManager
 
 import com.google.android.material.navigation.NavigationView
@@ -30,6 +32,8 @@ import com.google.firebase.ktx.Firebase
  * Icons by monkik, Freepik
  * */
 
+
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
@@ -42,7 +46,12 @@ class MainActivity : AppCompatActivity() {
 
     private val myAccountFragment = MyAccountFragment()
     private val mainFragment = MainFragment()
+    private val productsFragment = ProductsFragment()
 
+    override fun onBackPressed() {
+        if(supportFragmentManager.backStackEntryCount == 1) this.finish()
+        else  super.onBackPressed()
+    }
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "on start")
@@ -52,14 +61,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        Log.i(TAG,"on resume")
+        Log.i(TAG, "on resume")
         super.onResume()
         val currentUser = auth.currentUser
         updateUI(currentUser)
     }
 
     private fun updateUI(user: FirebaseUser?) {
-        Log.i(TAG,"UPDATE UI CASTED")
+        Log.i(TAG, "UPDATE UI CASTED")
         if (user == null) {
             welcomeTextView.text = ""
             footer.visibility = View.VISIBLE
@@ -95,6 +104,9 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         val screenWidth = displayMetrics.widthPixels
 
+
+        val manager: FragmentManager = supportFragmentManager
+
         /**Bind buttons*/
         cartButton = findViewById(R.id.cart_button)
         menuButton = findViewById(R.id.menu_button)
@@ -107,21 +119,14 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
             Firebase.auth.signOut()
             LoginManager.getInstance().logOut()
             updateUI(null)
+            val thisActivityIntent = Intent(this, MainActivity::class.java)
+            thisActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(thisActivityIntent)
+
         }
 
 
-        fun openFragment(fragment: Fragment, fragmentTag: String) {
-            val backStateName = fragment.javaClass.name
-            val manager: FragmentManager = supportFragmentManager
-            val fragmentPopped = manager.popBackStackImmediate(backStateName, 0)
-            if (!fragmentPopped && manager.findFragmentByTag(fragmentTag) == null) { //if fragment isn't in backStack, create it
-                val ft: FragmentTransaction = manager.beginTransaction()
-                ft.replace(R.id.container, fragment, fragmentTag)
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                ft.addToBackStack(backStateName)
-                ft.commit()
-            }
-        }
+
 
         fun openLoginActivity(){
             val loginActivity = Intent(this, LoginActivity::class.java)
@@ -150,17 +155,20 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
             NavigationView.OnNavigationItemSelectedListener { item: MenuItem ->
                 when (item.itemId) {
                     R.id.mi_account -> {
-                        if(auth.currentUser == null) openLoginActivity()
-                        else openFragment(myAccountFragment,MyAccountFragment.TAG)
+                        if (auth.currentUser == null) openLoginActivity()
+                        else openFragment(myAccountFragment, MyAccountFragment.TAG,manager)
 
                     }
                     R.id.mi_orders -> {
-                        if(auth.currentUser == null) openLoginActivity()
-                        else Toast.makeText(this,"Orders!",Toast.LENGTH_SHORT).show()
+                        if (auth.currentUser == null) openLoginActivity()
+                        else Toast.makeText(this, "Orders!", Toast.LENGTH_SHORT).show()
                     }
                     R.id.mi_settings -> {
                     }
                     R.id.mi_calendar -> {
+                    }
+                    R.id.mi_products -> {
+                        openFragment(productsFragment,ProductsFragment.TAG,manager)
                     }
                     else -> {
                         logout()
@@ -170,7 +178,7 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
                 drawerLayout.closeDrawer(GravityCompat.END)
                 return@OnNavigationItemSelectedListener true
             }
-        openFragment(mainFragment,MainFragment.TAG)
+        openFragment(mainFragment, MainFragment.TAG,manager)
         welcomeTextView = sideNav.getHeaderView(0).findViewById(R.id.user_name_header)
         sideNav.setNavigationItemSelectedListener(sideNavListener)
     }

@@ -8,33 +8,41 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.erdees.cakeorderingapp.R
+import com.erdees.cakeorderingapp.fragments.ProductsFragment
 import com.erdees.cakeorderingapp.model.PresentedItem
+import com.erdees.cakeorderingapp.openFragment
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
 
 
 class MainActivityRecyclerAdapter(
     private val activity: Activity,
-      options: FirestorePagingOptions<PresentedItem>, private val screenWidth: Int
+      options: FirestorePagingOptions<PresentedItem>, private val screenWidth: Int,
+    private val supportFragmentManager: FragmentManager
 ) :
     FirestorePagingAdapter<PresentedItem, MainActivityRecyclerAdapter.PresentedItemViewHolder>(
         options
     ) {
 
+    val productsFragment = ProductsFragment()
+
     companion object {
         private const val normalItem = 1
         private const val storePresentation = 0
-        private const val contactItem = 2
+        private const val morePastries = 2
+        private const val contactItem = 3
+
     }
 
-    class PresentedItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    }
+    class PresentedItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
 
     private fun sendMail(address: Array<String> ) {
@@ -86,6 +94,18 @@ class MainActivityRecyclerAdapter(
                 }
 
             }
+            morePastries -> {
+                val image = holder.itemView.findViewById<ImageView>(R.id.more_pastries_image)
+                Glide.with(activity)
+                    .load(model.pictureUrl)
+                    .override(screenWidth, 500)
+                    .into(image)
+                val window = holder.itemView.findViewById<LinearLayout>(R.id.more_pastries_window)
+                window.setOnClickListener {
+                    openFragment(productsFragment,ProductsFragment.TAG,supportFragmentManager)
+                }
+
+            }
         }
     }
 
@@ -93,7 +113,7 @@ class MainActivityRecyclerAdapter(
         return when (getItem(position)?.get("type") as Long) {
             1L -> normalItem
             0L -> storePresentation
-            2L -> contactItem
+            3L -> contactItem
             else -> 2
         }
     }
@@ -113,9 +133,14 @@ class MainActivityRecyclerAdapter(
                     .inflate(R.layout.horizontal_recycler_view, parent, false)
                 return MainActivityRecyclerAdapter.PresentedItemViewHolder(view)
             }
-            else -> {
+            contactItem -> {
                 val view = LayoutInflater.from(activity)
                     .inflate(R.layout.contact_recycler_item, parent, false)
+                return PresentedItemViewHolder(view)
+            }
+            else -> {
+                val view = LayoutInflater.from(activity)
+                    .inflate(R.layout.main_recycler_more_pastries, parent, false)
                 return PresentedItemViewHolder(view)
             }
         }
