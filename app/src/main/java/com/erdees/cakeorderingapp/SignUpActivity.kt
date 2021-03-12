@@ -32,7 +32,7 @@ class SignUpActivity: AppCompatActivity() {
             val password2 = findViewById<EditText>(R.id.edittext_password2)
             if (password.text.toString() != password2.text.toString()) {
                 Log.i(TAG,password.text.toString() + password2.text.toString())
-                Toast.makeText(this, "passwords don't match", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Passwords are not same.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             auth.createUserWithEmailAndPassword(mail.text.toString(), password.text.toString())

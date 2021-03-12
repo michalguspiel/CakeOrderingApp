@@ -29,6 +29,8 @@
         <activity
             android:name="com.erdees.cakeorderingapp.SignUpActivity"
             android:theme="@style/Theme.CakeOrderingApp" />
+        <activity android:name=".RestartPasswordActivity"
+            android:theme="@style/Theme.CakeOrderingApp"/>
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
 />
