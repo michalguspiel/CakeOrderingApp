@@ -1,15 +1,14 @@
-package com.erdees.cakeorderingapp
+package com.erdees.cakeorderingapp.activities
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import com.erdees.cakeorderingapp.R
 import com.facebook.*
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -40,7 +39,7 @@ class LoginActivity: AppCompatActivity() {
         /**Functions
          * */
         fun googlelogin() {
-            Log.i(LoginActivity.TAG, "LOGIN")
+            Log.i(TAG, "LOGIN")
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -70,7 +69,7 @@ class LoginActivity: AppCompatActivity() {
         /**Buttons functionality*/
 
         mailSignBtn.setOnClickListener {
-            val mailIntent = Intent(this,MailLoginActivity::class.java)
+            val mailIntent = Intent(this, MailLoginActivity::class.java)
             startActivity(mailIntent,savedInstanceState)
         }
 

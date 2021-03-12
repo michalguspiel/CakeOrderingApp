@@ -21,7 +21,7 @@ import com.firebase.ui.firestore.paging.FirestorePagingOptions
 
 class MainActivityRecyclerAdapter(
     private val activity: Activity,
-    private val options: FirestorePagingOptions<PresentedItem>, private val screenWidth: Int
+      options: FirestorePagingOptions<PresentedItem>, private val screenWidth: Int
 ) :
     FirestorePagingAdapter<PresentedItem, MainActivityRecyclerAdapter.PresentedItemViewHolder>(
         options
@@ -34,15 +34,10 @@ class MainActivityRecyclerAdapter(
     }
 
     class PresentedItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(presentedItem: PresentedItem) {}
     }
 
-    class StartingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(presentedItem: PresentedItem) {}
 
-    }
-
-    fun sendMail(address: Array<String> ) {
+    private fun sendMail(address: Array<String> ) {
         val intent = Intent(Intent.ACTION_SENDTO)
         intent.data = Uri.parse("mailto:") // only email apps should handle this
         intent.putExtra(Intent.EXTRA_EMAIL, address)

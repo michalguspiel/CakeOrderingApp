@@ -1,4 +1,4 @@
-package com.erdees.cakeorderingapp
+package com.erdees.cakeorderingapp.activities
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,21 +14,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
 import androidx.fragment.app.FragmentTransaction
-import androidx.paging.PagedList
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.erdees.cakeorderingapp.adapter.MainActivityRecyclerAdapter
-import com.erdees.cakeorderingapp.model.PresentedItem
+import com.erdees.cakeorderingapp.R
+import com.erdees.cakeorderingapp.fragments.MainFragment
+import com.erdees.cakeorderingapp.fragments.MyAccountFragment
 import com.facebook.login.LoginManager
-import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.firestore.paging.FirestorePagingOptions
 
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 
@@ -46,6 +40,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var welcomeTextView: TextView
     private lateinit var footer: Button
 
+    private val myAccountFragment = MyAccountFragment()
+    private val mainFragment = MainFragment()
 
     override fun onStart() {
         super.onStart()
@@ -62,9 +58,11 @@ class MainActivity : AppCompatActivity() {
         updateUI(currentUser)
     }
 
-    fun updateUI(user: FirebaseUser?) {
+    private fun updateUI(user: FirebaseUser?) {
         Log.i(TAG,"UPDATE UI CASTED")
         if (user == null) {
+            welcomeTextView.text = ""
+            footer.visibility = View.VISIBLE
             Log.i(TAG, "user update ui failed")
             cartButton.visibility = View.GONE
             sideNav.menu.findItem(R.id.mi_logout).isVisible = false
@@ -78,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-fun setWelcomeMsg(user: FirebaseUser?): String{
+private fun setWelcomeMsg(user: FirebaseUser?): String{
     return if (user?.displayName != null ) "Welcome " + user.displayName
     else "Welcome " + user?.email
 }
@@ -91,6 +89,7 @@ fun setWelcomeMsg(user: FirebaseUser?): String{
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
         /**Get Screen width*/
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -101,15 +100,15 @@ fun setWelcomeMsg(user: FirebaseUser?): String{
         menuButton = findViewById(R.id.menu_button)
         footer = findViewById(R.id.footer_item_1)
 
+
         /**Functions*/
         fun logout() {
             Log.i(TAG, "LOGOUT")
             Firebase.auth.signOut()
             LoginManager.getInstance().logOut()
-            welcomeTextView.text = ""
-            footer.visibility = View.VISIBLE
-            cartButton.visibility = View.GONE
+            updateUI(null)
         }
+
 
         fun openFragment(fragment: Fragment, fragmentTag: String) {
             val backStateName = fragment.javaClass.name
@@ -138,28 +137,7 @@ fun setWelcomeMsg(user: FirebaseUser?): String{
 
         /**Firebase*/
         auth = Firebase.auth
-        val db = Firebase.firestore
 
-        /**Get products to populate main recycler view*/
-        val presentationQuery = db.collection("productsForRecycler")
-            .orderBy("type", Query.Direction.ASCENDING)
-            .limit(10)
-        val config = PagedList.Config.Builder()
-            .setEnablePlaceholders(false)
-            .setPrefetchDistance(10)
-            .setPageSize(8)
-            .build()
-        // The options for the adapter combine the paging configuration with query information
-        // and application-specific options for lifecycle, etc.
-        val options = FirestorePagingOptions.Builder<PresentedItem>()
-            .setLifecycleOwner(this)
-            .setQuery(presentationQuery, config, PresentedItem::class.java)
-            .build()
-        /**Setup recycler view*/
-        val adapter = MainActivityRecyclerAdapter(this, options, screenWidth)
-        val recyclerView = findViewById<RecyclerView>(R.id.mainRecyclerView)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
 
         /**Side drawer menu */
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -173,7 +151,7 @@ fun setWelcomeMsg(user: FirebaseUser?): String{
                 when (item.itemId) {
                     R.id.mi_account -> {
                         if(auth.currentUser == null) openLoginActivity()
-                        else Toast.makeText(this,"Account",Toast.LENGTH_SHORT).show()
+                        else openFragment(myAccountFragment,MyAccountFragment.TAG)
 
                     }
                     R.id.mi_orders -> {
@@ -192,6 +170,7 @@ fun setWelcomeMsg(user: FirebaseUser?): String{
                 drawerLayout.closeDrawer(GravityCompat.END)
                 return@OnNavigationItemSelectedListener true
             }
+        openFragment(mainFragment,MainFragment.TAG)
         welcomeTextView = sideNav.getHeaderView(0).findViewById(R.id.user_name_header)
         sideNav.setNavigationItemSelectedListener(sideNavListener)
     }

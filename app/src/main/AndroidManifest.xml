@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
         <activity
-            android:name="com.erdees.cakeorderingapp.MainActivity"
+            android:name="com.erdees.cakeorderingapp.activities.MainActivity"
             android:theme="@style/Theme.CakeOrderingApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,16 +20,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.erdees.cakeorderingapp.LoginActivity"
+            android:name="com.erdees.cakeorderingapp.activities.LoginActivity"
             android:theme="@style/Theme.CakeOrderingApp">
         </activity>
         <activity
-            android:name="com.erdees.cakeorderingapp.MailLoginActivity"
+            android:name="com.erdees.cakeorderingapp.activities.MailLoginActivity"
             android:theme="@style/Theme.CakeOrderingApp" />
         <activity
-            android:name="com.erdees.cakeorderingapp.SignUpActivity"
+            android:name="com.erdees.cakeorderingapp.activities.SignUpActivity"
             android:theme="@style/Theme.CakeOrderingApp" />
-        <activity android:name=".RestartPasswordActivity"
+        <activity android:name=".activities.RestartPasswordActivity"
             android:theme="@style/Theme.CakeOrderingApp"/>
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"

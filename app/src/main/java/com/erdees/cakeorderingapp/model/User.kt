@@ -1,7 +1,10 @@
 package com.erdees.cakeorderingapp.model
 
 data class User(
-    val emojis: String = "",
-    val name: String = ""
+    val name: String = "",
+    val address: String = "",
+    val postCode: String = "",
+    val city: String = "",
+    val points : Int = 0 // loyalty points
 ) {
 }

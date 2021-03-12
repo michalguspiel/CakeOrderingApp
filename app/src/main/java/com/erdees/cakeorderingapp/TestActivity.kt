@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.erdees.cakeorderingapp.activities.MainActivity
 import com.erdees.cakeorderingapp.model.User
-import com.firebase.ui.firestore.FirestoreArray
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -61,7 +61,6 @@ class TestActivity: AppCompatActivity() {
         val text1 = holder.itemView.findViewById<TextView>(android.R.id.text1)
         val text2 = holder.itemView.findViewById<TextView>(android.R.id.text2)
         text1.text = model.name
-        text2.text = model.emojis
         }
 
         }
@@ -81,7 +80,7 @@ class TestActivity: AppCompatActivity() {
         R.id.mi_settings -> {
         Log.i(TAG, "LOGOUT")
         auth.signOut()
-        val logoutIntent = Intent(this,MainActivity::class.java)
+        val logoutIntent = Intent(this, MainActivity::class.java)
         logoutIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(logoutIntent)
         }
