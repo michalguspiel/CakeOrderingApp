@@ -7,21 +7,21 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.fragments.EachProductFragment
-import com.erdees.cakeorderingapp.model.PresentedItem
 import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.openFragment
-import com.erdees.cakeorderingapp.viewmodel.ViewModel
+import com.erdees.cakeorderingapp.viewmodel.ProductsAdapterViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
 
-class ProductsAdapter(options: FirestorePagingOptions<Products>,val activity: Activity,val supportFragmentManager: FragmentManager,val viewModel: ViewModel):
+class ProductsAdapter(options: FirestorePagingOptions<Products>,
+                      val activity: Activity,
+                      val supportFragmentManager: FragmentManager,
+                      val viewModel: ProductsAdapterViewModel):
     FirestorePagingAdapter<Products, ProductsAdapter.ProductsItemViewHolder>(options) {
 
 

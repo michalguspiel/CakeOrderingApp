@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.adapter.ProductsAdapter
 import com.erdees.cakeorderingapp.model.Products
-import com.erdees.cakeorderingapp.viewmodel.ViewModel
+import com.erdees.cakeorderingapp.viewmodel.ProductsAdapterViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
@@ -29,7 +29,8 @@ class ProductsFragment: Fragment() {
 
         val db = Firebase.firestore
         val searchTags: Array<String> = arrayOf(String())
-        val viewModel: ViewModel = ViewModelProvider(this).get(ViewModel::class.java)
+        val viewModel: ProductsAdapterViewModel =
+            ViewModelProvider(this).get(ProductsAdapterViewModel::class.java)
 
         val query = db.collection("products")
             .orderBy("productName",Query.Direction.ASCENDING)
