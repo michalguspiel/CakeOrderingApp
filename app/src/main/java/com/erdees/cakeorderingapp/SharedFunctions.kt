@@ -3,8 +3,21 @@ package com.erdees.cakeorderingapp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import kotlin.random.Random
 
-
+fun randomizeTag():String{
+        val tagArray: Array<String> = arrayOf(
+            "bread",
+            "chocolate",
+            "muffin",
+            "birthdaycake",
+            "eclair",
+            "fruits",
+            "whitechocolate",
+            "donut"
+        )
+       return tagArray[Random(System.currentTimeMillis()).nextInt(tagArray.size-1)]
+    }
 
 
     fun openFragment(fragment: Fragment, fragmentTag: String, manager: FragmentManager) {

@@ -7,19 +7,20 @@ import com.erdees.cakeorderingapp.database.Database
 import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.repository.ProductRepository
 
-class EachProductAdapterViewModel(application: Application): AndroidViewModel(application) {
+class MainActivityViewModel(application: Application): AndroidViewModel(application) {
 
-    val getProduct: LiveData<Products>
+    val getProductList: LiveData<List<Products>>
+
     private val productRepository: ProductRepository
 
     init {
         val productDao = Database.getInstance().productDao
         productRepository = ProductRepository(productDao)
-        getProduct = productRepository.getProduct()
+        getProductList = productRepository.getProductList()
     }
 
     fun setProduct(product: Products) = productRepository.setProduct(product)
 
-    fun addProductToList(product: Products) = productRepository.addProductToList(product)
+    fun removeLastProductFromList() = productRepository.removeLastProduct()
 
 }

@@ -1,5 +1,6 @@
 package com.erdees.cakeorderingapp.activities
 
+import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -14,11 +15,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.fragments.MainFragment
 import com.erdees.cakeorderingapp.fragments.MyAccountFragment
 import com.erdees.cakeorderingapp.fragments.ProductsFragment
+import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.openFragment
+import com.erdees.cakeorderingapp.viewmodel.MainActivityViewModel
 import com.facebook.login.LoginManager
 
 import com.google.android.material.navigation.NavigationView
@@ -43,12 +49,31 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sideNav: NavigationView
     private lateinit var welcomeTextView: TextView
     private lateinit var footer: Button
+    private lateinit var viewModel : MainActivityViewModel
+    private lateinit var listOfProductsInBackStack : List<Products>
 
     private val myAccountFragment = MyAccountFragment()
     private val mainFragment = MainFragment()
     private val productsFragment = ProductsFragment()
 
+    /** If there are products in viewmodel product list
+        set last product from list as main product(presented in eachProductFramgnet)
+        then delete that from list
+        and return.
+
+        IDK if that's correct approach but when doing in this way
+        there's no need to reload fragment,
+        and program keeps track of loaded products.
+
+        So productList in productDAO is like backstack of
+        presented products in EachProductFragment
+     */
     override fun onBackPressed() {
+        if(!viewModel.getProductList.value.isNullOrEmpty()){
+            viewModel.setProduct(viewModel.getProductList.value!!.last())
+            viewModel.removeLastProductFromList()
+            return
+        }
         if(supportFragmentManager.backStackEntryCount == 1) this.finish()
         else  super.onBackPressed()
     }
@@ -103,6 +128,15 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         val screenWidth = displayMetrics.widthPixels
+
+
+        /**Initialize Viewmodel and get products list and last product in that list*/
+          viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        viewModel.getProductList.observe(this, Observer { list ->
+            listOfProductsInBackStack = list
+        })
+
+
 
 
         val manager: FragmentManager = supportFragmentManager

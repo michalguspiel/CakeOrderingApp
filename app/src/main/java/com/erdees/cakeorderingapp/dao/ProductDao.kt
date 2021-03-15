@@ -9,6 +9,10 @@ class ProductDao {
     private var product: Products? = null
     private val productLive  = MutableLiveData<Products>()
 
+    private var productList: MutableList<Products> = mutableListOf()
+    private var productListLive = MutableLiveData<List<Products>>()
+
+
     init {
         productLive.value = product
     }
@@ -19,5 +23,18 @@ class ProductDao {
 
     fun getProduct() = productLive as LiveData<Products>
 
+    fun addProductToList(products: Products) {
+        productList.plusAssign(products)
+        productListLive.value = productList
+    }
+
+    fun removeLastProducts(){
+        productList.removeLast()
+        productListLive.value = productList
+    }
+
+    fun getProductList() = productListLive as LiveData<List<Products>>
+
+    fun getLastProduct() = getProductList().value?.last()
 
 }

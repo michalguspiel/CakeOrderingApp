@@ -3,6 +3,7 @@ package com.erdees.cakeorderingapp.adapter
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,24 +17,32 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.erdees.cakeorderingapp.R
+import com.erdees.cakeorderingapp.fragments.EachProductFragment
 import com.erdees.cakeorderingapp.fragments.ProductsFragment
 import com.erdees.cakeorderingapp.model.PresentedItem
+import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.openFragment
+import com.erdees.cakeorderingapp.viewmodel.MainActivityRecyclerAdapterViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
+import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 
 class MainActivityRecyclerAdapter(
     private val activity: Activity,
       options: FirestorePagingOptions<PresentedItem>, private val screenWidth: Int,
-    private val supportFragmentManager: FragmentManager
+    private val supportFragmentManager: FragmentManager,
+    val viewModel : MainActivityRecyclerAdapterViewModel
 ) :
     FirestorePagingAdapter<PresentedItem, MainActivityRecyclerAdapter.PresentedItemViewHolder>(
         options
     ) {
 
+    val db = Firebase.firestore
+    val eachProductFragment =  EachProductFragment()
     val productsFragment = ProductsFragment()
-
     companion object {
         private const val normalItem = 1
         private const val storePresentation = 0
@@ -64,6 +73,7 @@ class MainActivityRecyclerAdapter(
                 val image = holder.itemView.findViewById<ImageView>(R.id.product_image)
                 val name = holder.itemView.findViewById<TextView>(R.id.product_name)
                 val desc = holder.itemView.findViewById<TextView>(R.id.product_desc)
+                val button = holder.itemView.findViewById<Button>(R.id.main_recycler_more)
                 name.text = model.name
                 desc.text = model.description
                 Glide.with(activity)
@@ -71,6 +81,11 @@ class MainActivityRecyclerAdapter(
                     .override(screenWidth, 400)
                     .centerCrop()
                     .into(image)
+                button.setOnClickListener {
+                    val productDocument = db.collection("products").document(model.productId).get()
+
+
+                }
             }
             storePresentation -> {
                 val recyclerView =

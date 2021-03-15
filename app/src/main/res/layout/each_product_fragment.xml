@@ -1,14 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/each_product_scroll_view"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/each_product_recycler"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="153dp"
-        tools:layout_editor_absoluteY="346dp" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+    <ImageView
+        android:id="@+id/each_product_picture"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:foregroundGravity="center_horizontal"
+        tools:srcCompat="@tools:sample/backgrounds/scenic"
+        android:scaleType="center"
+        />
+
+        <TextView
+            android:id="@+id/each_product_name1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_gravity="right"
+            android:layout_marginRight="8dp"
+            android:text="Chocolate wonder"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@color/pink_900"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/each_product_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="8dp"
+            android:gravity="start"
+            android:textSize="18sp"
+            android:textStyle="normal"
+            tools:text="Chocolate cake with chocolate on chocolate with chocolate on chocolate with chocolate" />
+
+
+            <LinearLayout
+            android:layout_width="320dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:background="@drawable/rectangle_with_rounded_corners">
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:layout_gravity="center_horizontal"
+                app:srcCompat="@drawable/ic_baseline_emoji_emotions_24" />
+
+            <TextView
+                android:id="@+id/each_product_waiting_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textColor="@color/black"
+                android:textSize="22sp"
+                tools:text="Available same day in shop or next day with delivery." />
+
+            </LinearLayout>
+
+
+       <LinearLayout
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6dp"
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/each_product_price"
+                android:layout_marginLeft="6dp"
+                android:layout_marginBottom="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                tools:text="99.99£" />
+
+            <TextView
+                android:id="@+id/each_product_vat_inc"
+                android:layout_marginLeft="6dp"
+                android:layout_marginBottom="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" VAT inc."
+                android:textSize="15sp" />
+       </LinearLayout>
+
+
+
+        <Button
+            android:id="@+id/each_product_add_to_cart_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            app:icon="@drawable/ic_baseline_shopping_cart_24"
+            app:iconTint="@color/white"
+            android:background="@drawable/add_to_cart_button"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:text="Add to cart"
+            android:textSize="22sp"
+            android:textColor="@color/white" />
+
+
+
+
+        <TextView
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:text="You might also be interested in:"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/each_products_additional_recycler"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    </LinearLayout>
+
+</ScrollView>

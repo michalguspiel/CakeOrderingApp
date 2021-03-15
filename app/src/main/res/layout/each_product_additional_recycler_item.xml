@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    android:id="@+id/each_product_additional_recycler_card"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="240dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="12dp"
+        android:orientation="vertical"
+        >
+
+        <ImageView
+            android:id="@+id/each_product_picture_additional_recycler"
+            android:layout_width="200dp"
+            android:layout_height="280dp"
+            android:layout_gravity="center"
+            android:foregroundGravity="center_horizontal"
+            android:scaleType="center"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+    <TextView
+        android:id="@+id/each_product_name_additional_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="0dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        tools:text="Chocolate wonder"
+        android:textColor="@color/pink_200"
+        android:textSize="22sp"
+        android:textStyle="normal" />
+
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

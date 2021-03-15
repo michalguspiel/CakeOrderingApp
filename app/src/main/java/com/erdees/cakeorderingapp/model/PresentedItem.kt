@@ -7,6 +7,7 @@ data class PresentedItem(
         val type: Long = 0,
         val picturesArray: List<String> = listOf(),
         val mail: String = "",
-        val order: Long = 0
+        val order: Long = 0,
+        val productId:String = ""
 ) {
 }

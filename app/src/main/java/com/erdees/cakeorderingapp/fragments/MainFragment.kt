@@ -6,12 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.adapter.MainActivityRecyclerAdapter
 import com.erdees.cakeorderingapp.model.PresentedItem
+import com.erdees.cakeorderingapp.viewmodel.MainActivityRecyclerAdapterViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -46,7 +48,7 @@ class MainFragment : Fragment() {
         val config = PagedList.Config.Builder()
             .setEnablePlaceholders(false)
             .setPrefetchDistance(10)
-            .setPageSize(8)
+            .setPageSize(12)
             .build()
         // The options for the adapter combine the paging configuration with query information
         // and application-specific options for lifecycle, etc.
@@ -55,7 +57,12 @@ class MainFragment : Fragment() {
             .setQuery(presentationQuery, config, PresentedItem::class.java)
             .build()
         /**Setup recycler view*/
-        val adapter = MainActivityRecyclerAdapter(requireActivity(), options, screenWidth,parentFragmentManager)
+        val adapter = MainActivityRecyclerAdapter(
+            requireActivity(),
+            options,
+            screenWidth,
+            parentFragmentManager,
+            ViewModelProvider(this).get(MainActivityRecyclerAdapterViewModel::class.java))
         val recyclerView = view.findViewById<RecyclerView>(R.id.mainRecyclerView)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireActivity())

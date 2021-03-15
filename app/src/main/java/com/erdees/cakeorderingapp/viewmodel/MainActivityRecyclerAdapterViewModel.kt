@@ -7,7 +7,7 @@ import com.erdees.cakeorderingapp.database.Database
 import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.repository.ProductRepository
 
-class EachProductAdapterViewModel(application: Application): AndroidViewModel(application) {
+class MainActivityRecyclerAdapterViewModel(application: Application): AndroidViewModel(application) {
 
     val getProduct: LiveData<Products>
     private val productRepository: ProductRepository
@@ -18,8 +18,6 @@ class EachProductAdapterViewModel(application: Application): AndroidViewModel(ap
         getProduct = productRepository.getProduct()
     }
 
-    fun setProduct(product: Products) = productRepository.setProduct(product)
-
-    fun addProductToList(product: Products) = productRepository.addProductToList(product)
+    fun setProduct(product: Products){ productRepository.setProduct(product)}
 
 }
