@@ -52,7 +52,6 @@ class EachProductAdapter( options: FirestorePagingOptions<Products>, val activit
         cardView.setOnClickListener {
             Log.i("eachProductAdapter",viewModel.getProduct.value.toString())
             viewModel.addProductToList(viewModel.getProduct.value!!) // to add this viewmodel to list as history // sure this is not null because to get here there has to be something
-
             viewModel.setProduct(model) // setting a new model for viewmodel
             notifyDataSetChanged()
         }

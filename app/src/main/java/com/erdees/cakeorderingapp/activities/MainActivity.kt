@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.fragments.MainFragment
 import com.erdees.cakeorderingapp.fragments.MyAccountFragment
+import com.erdees.cakeorderingapp.fragments.MyCartFragment
 import com.erdees.cakeorderingapp.fragments.ProductsFragment
 import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.openFragment
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
     private val myAccountFragment = MyAccountFragment()
     private val mainFragment = MainFragment()
     private val productsFragment = ProductsFragment()
-
+    private val myCartFragment = MyCartFragment()
     /** If there are products in viewmodel product list
         set last product from list as main product(presented in eachProductFramgnet)
         then delete that from list
@@ -159,9 +160,6 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
 
         }
 
-
-
-
         fun openLoginActivity(){
             val loginActivity = Intent(this, LoginActivity::class.java)
             startActivity(loginActivity, savedInstanceState)
@@ -172,6 +170,10 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
 
         footer.setOnClickListener {
             openLoginActivity()
+        }
+
+        cartButton.setOnClickListener{
+            openFragment(myCartFragment,MyCartFragment.TAG,supportFragmentManager)
         }
 
         /**Firebase*/

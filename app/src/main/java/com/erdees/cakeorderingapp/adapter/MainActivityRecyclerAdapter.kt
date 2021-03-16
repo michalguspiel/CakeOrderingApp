@@ -82,8 +82,11 @@ class MainActivityRecyclerAdapter(
                     .centerCrop()
                     .into(image)
                 button.setOnClickListener {
-                    val productDocument = db.collection("products").document(model.productId).get()
-
+                    db.collection("products").document(model.productId).get()// get productid from productforrecycler
+                        .addOnSuccessListener {
+                            viewModel.setProduct(it.toObject(Products::class.java)!!)       //set it in viewmodel
+                            openFragment(eachProductFragment,EachProductFragment.TAG,supportFragmentManager)    // opens fragment
+                        }
 
                 }
             }

@@ -25,7 +25,6 @@ class MyAccountAdapter(val user: FirebaseUser,val activity: Activity, val parent
     val auth = Firebase.auth
     val editAddressDialog = EditAddressDialog.newInstance()
     val docRef = db.collection("users").document(user.uid)
-
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     }
@@ -65,6 +64,7 @@ class MyAccountAdapter(val user: FirebaseUser,val activity: Activity, val parent
                     holder.itemView.findViewById<Button>(R.id.edit_address_button)
 
 
+                Log.i("Eligible",user.uid)
 
                 docRef.addSnapshotListener { snapShot, e ->
                     if (e != null) {

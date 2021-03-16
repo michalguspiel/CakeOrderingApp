@@ -1,13 +1,13 @@
 package com.erdees.cakeorderingapp.fragments
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
@@ -17,14 +17,18 @@ import com.bumptech.glide.Glide
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.adapter.EachProductAdapter
 import com.erdees.cakeorderingapp.model.Products
+import com.erdees.cakeorderingapp.model.UserShoppingCart
 import com.erdees.cakeorderingapp.randomizeTag
 import com.erdees.cakeorderingapp.viewmodel.EachProductAdapterViewModel
 import com.erdees.cakeorderingapp.viewmodel.EachProductFragmentViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.text.NumberFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class EachProductFragment : Fragment() {
@@ -39,27 +43,43 @@ class EachProductFragment : Fragment() {
         val viewModel = ViewModelProvider(this).get(EachProductFragmentViewModel::class.java)
 
 
-
-
         /**Initialize firestore and get few products *
          * FOR NOW RANDOMIZE TAG AND GETTING PRODUCTS WITH IT
          * * to display at the end*/
         val db = Firebase.firestore
-        val query = db.collection("products")
-            .whereArrayContains("productTags", "bread") // TODO FOR TESTING THIS IS SET ALWAYS TO BREAD
-            .limit(7)
+        val auth = Firebase.auth
 
-        Log.i(TAG, randomizeTag())
+        /**NEED TO CHECK IF USER HAS THIS PRODUCT IN HIS CART
+         * IF YES THEN HOW MANY
+         * SO I CAN SUM IT WITH AMOUNT THAT USER WANTS TO ADD RIGHT NOW
+         *
+         * LETS SAY WHEN USER HAS 3 CHOCO MUFFINS ALREADY IN HIS CART
+         * AND WANT TO ADD 2 MORE
+         * THIS COMPUTES INTO 5 AND THEN OVERRIDES THAT 2 IN CART WITH NEW AMOUNT
+         * */
+        var amountOfThisProductalreadyInCart = 0L
+        val docRef = db.collection("userShoppingCart").document(auth.uid!!)
+            docRef.addSnapshotListener{ snapShot, e ->
+                if (e != null) {
+                    return@addSnapshotListener
+                }
+                if (e != null && snapShot!!.exists()) {
+                    Log.d("TAG", "Current data: ${snapShot.data}")
+                } else {
+                    docRef.get().addOnSuccessListener {
+                        if (it[model.docId] != null) {
+                            amountOfThisProductalreadyInCart = it[model.docId].toString().toLong()
+                        }
+                    }
+                }
+            }
 
-        val config = PagedList.Config.Builder()
-            .setEnablePlaceholders(false)
-            .setPrefetchDistance(10)
-            .setPageSize(9)
-            .build()
-        val options = FirestorePagingOptions.Builder<Products>()
-            .setLifecycleOwner(this)
-            .setQuery(query, config, Products::class.java)
-            .build()
+
+
+
+
+
+        /**NEED PRODUCT ID REF*/
 
 
         /**Binders*/
@@ -70,18 +90,10 @@ class EachProductFragment : Fragment() {
         val price = view.findViewById<TextView>(R.id.each_product_price)
         val recycler = view.findViewById<RecyclerView>(R.id.each_products_additional_recycler)
         val scrollView = view.findViewById<ScrollView>(R.id.each_product_scroll_view)
+        val addToCartButton = view.findViewById<Button>(R.id.each_product_add_to_cart_button)
 
-        /**SETUP recycler*/
-        val adapter = EachProductAdapter(options, requireActivity(), parentFragmentManager,ViewModelProvider(this).get(EachProductAdapterViewModel::class.java))
-        recycler.adapter = adapter
-        recycler.layoutManager = LinearLayoutManager(
-            requireActivity(),
-            LinearLayoutManager.HORIZONTAL,
-            false
-        )
         /**Then access the model passed from viewmodel*/
         viewModel.getProduct.observe(viewLifecycleOwner, {
-           // scrollView.scrollTo(0,0)
             scrollView.fullScroll(ScrollView.FOCUS_UP)
             model = it
             Glide.with(requireContext())
@@ -98,13 +110,56 @@ class EachProductFragment : Fragment() {
                 else -> "Available within ${model.productWaitTime} days."
             }
 
+
+            addToCartButton.setOnClickListener {
+                val numberPicker = NumberPicker(requireContext())
+                numberPicker.minValue = 1
+                numberPicker.maxValue = 99
+            val dialog = AlertDialog.Builder(requireContext())
+                .setTitle("How many")
+                .setView(numberPicker)
+                .setPositiveButton("Add to cart",null)
+                .setNegativeButton("Cancel",null)
+                .show()
+            dialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener {
+                Log.i("test",numberPicker.value.toString())
+                val data = hashMapOf(model.docId to numberPicker.value.toLong() + amountOfThisProductalreadyInCart)
+
+
+                    db.collection("userShoppingCart")
+                        .document(auth.uid!!).set(data, SetOptions.merge())
+
+
+                dialog.dismiss()
+            }
+            }
+
+
+            /**All of these is inside observe because it needs initialized model to
+             * not display in bottom recycler view product that is presented on top */
+            val query = db.collection("products")
+                .whereArrayContains("productTags", "bread") // TODO FOR TESTING THIS IS SET ALWAYS TO BREAD
+                .limit(7)
+                .whereNotEqualTo("productName",model.productName)
+            val config = PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(10)
+                .setPageSize(9)
+                .build()
+            val options = FirestorePagingOptions.Builder<Products>()
+                .setLifecycleOwner(this)
+                .setQuery(query, config, Products::class.java)
+                .build()
+
+            /**SETUP recycler*/
+            val adapter = EachProductAdapter(options, requireActivity(), parentFragmentManager,ViewModelProvider(this).get(EachProductAdapterViewModel::class.java))
+            recycler.adapter = adapter
+            recycler.layoutManager = LinearLayoutManager(
+                requireActivity(),
+                LinearLayoutManager.HORIZONTAL,
+                false
+            )
         })
-
-
-
-
-
-
 
         return view
     }

@@ -67,7 +67,7 @@
                         android:id="@+id/account_postcode_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+
                         android:layout_marginEnd="6dp"
                         android:textSize="22sp"
                         tools:text="6666" />
@@ -76,7 +76,7 @@
                         android:id="@+id/account_city_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+
                         android:textSize="22sp"
                         tools:text="NeverLand" />
                 </LinearLayout>

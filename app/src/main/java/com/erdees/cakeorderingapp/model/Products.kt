@@ -1,6 +1,9 @@
 package com.erdees.cakeorderingapp.model
 
+import com.google.firebase.firestore.DocumentId
+
 data class Products(
+    @DocumentId val docId: String = "",
     val productName: String = "",
     val productTags: List<String> = listOf(),
     val productDesc: String = "",
