@@ -1,6 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <RadioGroup
+        android:id="@+id/delivery_method_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/delivery_method_cost_plus_delivery"
+        app:layout_constraintVertical_bias="0.091">
+
+        <RadioButton
+            android:id="@+id/delivery_pickup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick up in store." />
+
+        <RadioButton
+            android:id="@+id/delivery_elves_notpaid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Elves delivery. Pay to elves." />
+
+        <RadioButton
+            android:id="@+id/delivery_elves_upfront"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Elves delivery. Pay up front." />
+
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/delivery_method_total_cost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="70dp"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Order price: 52€" />
+
+    <TextView
+        android:id="@+id/delivery_method_cost_plus_delivery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/delivery_method_total_cost"
+        tools:text="(48€ + 4€delivery)" />
+
+    <Button
+        android:id="@+id/delivery_method_confirm_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:paddingHorizontal="20dp"
+        android:text="Confirm purchase"
+        android:background="@drawable/cart_button_order"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

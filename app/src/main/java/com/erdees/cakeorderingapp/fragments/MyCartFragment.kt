@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.adapter.CartItemsRecyclerAdapter
+import com.erdees.cakeorderingapp.openFragment
 import com.erdees.cakeorderingapp.viewmodel.CartItemsRecyclerAdapterViewModel
 import com.erdees.cakeorderingapp.viewmodel.MyCartFragmentViewModel
 import com.google.firebase.auth.ktx.auth
@@ -25,6 +26,7 @@ import java.util.*
 
 class MyCartFragment: Fragment() {
 
+    val deliveryMethodFragment = DeliveryMethodFragment()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,12 +60,10 @@ class MyCartFragment: Fragment() {
         /**Access to user shopping cart
          * take items and amounts*/
         db.collection("userShoppingCart").document(user.uid!!).get().addOnSuccessListener { snapshot ->
-            snapshot.data!!.forEach {
+            snapshot.data?.forEach {
             val pair = it.key to it.value.toString().toLong()
                 howManyItems += it.value.toString().toInt()
                 mapToPopulate += (pair)
-                Log.i("cart",pair.first + pair.second.toString())
-                Log.i("cart2",mapToPopulate.size.toString())
             }
             viewModel.clearPrice() // to clear price before i populate it again
             val adapter =  CartItemsRecyclerAdapter(mapToPopulate,requireActivity(),ViewModelProvider(this).get(CartItemsRecyclerAdapterViewModel::class.java),viewLifecycleOwner)
@@ -80,7 +80,7 @@ class MyCartFragment: Fragment() {
 
 
         proceedButton.setOnClickListener {
-
+        openFragment(deliveryMethodFragment,DeliveryMethodFragment.TAG,parentFragmentManager)
 
         }
 
