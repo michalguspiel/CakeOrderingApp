@@ -31,14 +31,22 @@ class DeliveryMethodFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.delivery_method_fragment, container, false)
         val viewModel = ViewModelProvider(this).get(DeliveryMethodFragmentViewModel::class.java)
-
-        val constants = Constants() // constant class so in case of changes ill change only in there
-
-
+        var prePaidDeliveryCost = 0.0
+        var paidAtDeliveryCost = 0.0
         /**Firebase access*/
+
         val auth = Firebase.auth
-        val db = Firebase.firestore
         val user = auth.currentUser
+        val db = Firebase.firestore
+
+        val docRef = db.collection("constants").document("prices")
+        docRef.get().addOnSuccessListener {
+                    prePaidDeliveryCost = it[Constants.prePaidCost].toString().toDouble()
+                    paidAtDeliveryCost = it[Constants.paidAtDeliveryCost].toString().toDouble()
+                }
+
+
+
 
         /**Binders*/
         val costParanthesis = view.findViewById<TextView>(R.id.delivery_method_cost_plus_delivery)
@@ -49,36 +57,38 @@ class DeliveryMethodFragment : Fragment() {
         val radioButtonPaid = view.findViewById<RadioButton>(R.id.delivery_elves_upfront)
         val confirmPurchaseButton = view.findViewById<Button>(R.id.delivery_method_confirm_button)
 
-        fun format(number: Double): String{
+        fun format(number: Double): String {
             return NumberFormat.getCurrencyInstance(Locale.FRANCE).format(number)
         }
 
-        val cartCost  = viewModel.getPriceList.value!!.sum()
+        val cartCost = viewModel.getPriceList.value!!.sum()
 
 
         val radioListener = RadioGroup.OnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.delivery_pickup -> {
-                   totalCost.text = format(cartCost)
-                Toast.makeText(requireContext(),"pickup",Toast.LENGTH_SHORT).show()
+                    totalCost.text = format(cartCost)
+                    costParanthesis.text = ""
+                    Toast.makeText(requireContext(), "pickup", Toast.LENGTH_SHORT).show()
                 }
                 R.id.delivery_elves_notpaid -> {
-                    totalCost.text = format(cartCost + constants.deliveryUnpaidCost)
-                    costParanthesis.text = "(${format(cartCost)} + ${format(constants.deliveryUnpaidCost)})"
-                    Toast.makeText(requireContext(),"notpaid",Toast.LENGTH_SHORT).show()
+                    totalCost.text = format(cartCost + paidAtDeliveryCost)
+                    costParanthesis.text = "(${format(cartCost)} + ${format(paidAtDeliveryCost)})"
+                    Toast.makeText(requireContext(), "notpaid", Toast.LENGTH_SHORT).show()
                 }
                 R.id.delivery_elves_upfront -> {
-                    totalCost.text = format(cartCost + constants.deliveryPaidCost)
-                    costParanthesis.text = "(${format(cartCost)} + ${format(constants.deliveryPaidCost)})"
+                    totalCost.text = format(cartCost + prePaidDeliveryCost)
+                    costParanthesis.text = "(${format(cartCost)} + ${format(prePaidDeliveryCost)})"
 
                 }
-                else -> {  Toast.makeText(requireContext(),"ERRR",Toast.LENGTH_SHORT).show()
+                else -> {
+                    Toast.makeText(requireContext(), "ERRR", Toast.LENGTH_SHORT).show()
                 }
             }
         }
         radioGroup.setOnCheckedChangeListener(radioListener)
         radioGroup.check(R.id.delivery_pickup) // to start with first button checked
-        val mapToPopulate = mutableMapOf<String,Long>()
+        val mapToPopulate = mutableMapOf<String, Long>()
         val shoppingCartRef = db.collection("userShoppingCart").document(user.uid)
         shoppingCartRef.addSnapshotListener { snapShot, e ->
             if (e != null) {
@@ -89,14 +99,14 @@ class DeliveryMethodFragment : Fragment() {
 
             } else {
                 Log.d("TAG", "Current data: null")
-                shoppingCartRef.get().addOnSuccessListener {documentSnapshot ->
+                shoppingCartRef.get().addOnSuccessListener { documentSnapshot ->
                     documentSnapshot.data?.forEach { data ->
                         val pair = data.key to data.value.toString().toLong()
                         mapToPopulate += pair
                     }
                 }
-                }
             }
+        }
 
         val orderToPlace = Order(
             mapToPopulate,
@@ -108,24 +118,32 @@ class DeliveryMethodFragment : Fragment() {
         confirmPurchaseButton.setOnClickListener {
             when {
                 radioButtonPickup.isChecked -> {
-                    Toast.makeText(requireContext(),"YOU ORDERED WITH PICKUP",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "YOU ORDERED WITH PICKUP", Toast.LENGTH_SHORT)
+                        .show()
 
                     db.collection("placedOrders").document().set(orderToPlace)
                     db.collection("userShoppingCart").document(user.uid).delete()
                     parentFragmentManager.popBackStackImmediate()
                     AlertDialog.Builder(requireContext())
                         .setMessage("Your order has been placed successfully.")
-                        .setNegativeButton("Back",null)
+                        .setNegativeButton("Back", null)
                         .show()
                 }
                 radioButtonNotPaid.isChecked -> {
-                    Toast.makeText(requireContext(),"ORDERED WITH DELIVERY PAY TO ELVES",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "ORDERED WITH DELIVERY PAY TO ELVES",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 radioButtonPaid.isChecked -> {
-                    Toast.makeText(requireContext(),"ORDERED WITH PAID DELIVERY",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "ORDERED WITH PAID DELIVERY",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-
 
 
         }

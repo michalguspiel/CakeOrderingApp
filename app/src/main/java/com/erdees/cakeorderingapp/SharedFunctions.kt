@@ -1,5 +1,6 @@
 package com.erdees.cakeorderingapp
 
+import android.transition.TransitionManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -9,12 +10,14 @@ fun randomizeTag():String{
         val tagArray: Array<String> = arrayOf(
             "bread",
             "chocolate",
+            "dessert",
             "muffin",
             "birthdaycake",
             "eclair",
             "fruits",
             "whitechocolate",
-            "donut"
+            "donut",
+            "cake"
         )
        return tagArray[Random(System.currentTimeMillis()).nextInt(tagArray.size-1)]
     }
@@ -31,3 +34,6 @@ fun randomizeTag():String{
             ft.commit()
         }
     }
+
+
+

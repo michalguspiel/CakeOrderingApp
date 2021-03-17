@@ -17,6 +17,8 @@ import com.erdees.cakeorderingapp.openFragment
 import com.erdees.cakeorderingapp.viewmodel.ProductsAdapterViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
+import java.text.NumberFormat
+import java.util.*
 
 class ProductsAdapter(options: FirestorePagingOptions<Products>,
                       val activity: Activity,
@@ -38,11 +40,12 @@ class ProductsAdapter(options: FirestorePagingOptions<Products>,
     override fun onBindViewHolder(holder: ProductsItemViewHolder, position: Int, model: Products) {
         val name =  holder.itemView.findViewById<TextView>(R.id.product_title)
         val picture = holder.itemView.findViewById<ImageView>(R.id.product_picture)
+        val price = holder.itemView.findViewById<TextView>(R.id.product_price)
         name.text = model.productName
-
+        price.text = NumberFormat.getCurrencyInstance(Locale.FRANCE).format(model.productPrice)
         Glide.with(activity)
             .load(model.productPictureUrl)
-            .override(400, 400)
+            .override(480, 480)
             .centerCrop()
             .into(picture)
 

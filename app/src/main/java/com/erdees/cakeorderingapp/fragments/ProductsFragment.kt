@@ -1,5 +1,6 @@
 package com.erdees.cakeorderingapp.fragments
 
+import com.erdees.cakeorderingapp.AutoFitGridLayoutManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.MiddleDividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.erdees.cakeorderingapp.R
+import com.erdees.cakeorderingapp.Utility
 import com.erdees.cakeorderingapp.adapter.ProductsAdapter
 import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.viewmodel.ProductsAdapterViewModel
@@ -38,7 +41,7 @@ class ProductsFragment: Fragment() {
             //.whereArrayContains("productTags",searchTags)
         val config = PagedList.Config.Builder()
             .setEnablePlaceholders(false)
-            .setPrefetchDistance(10)
+            .setPrefetchDistance(5)
             .setPageSize(8)
             .build()
         val options = FirestorePagingOptions.Builder<Products>()
@@ -48,9 +51,22 @@ class ProductsFragment: Fragment() {
 
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_products)
+
         val adapter = ProductsAdapter(options,requireActivity(),parentFragmentManager,viewModel)
+        val numberOfColumns = Utility().calculateNoOfColumns(requireContext(),170)
+
+
+
         recyclerView.adapter = adapter
-        recyclerView.layoutManager = GridLayoutManager(requireContext(),2)
+
+        //
+         recyclerView.layoutManager = AutoFitGridLayoutManager(requireContext(),500)
+        //recyclerView.layoutManager = GridLayoutManager(requireContext(),numberOfColumns)
+        val divider = MiddleDividerItemDecoration(requireContext(),MiddleDividerItemDecoration.ALL)
+            divider.setDividerColor(R.color.pink_700)
+        recyclerView.addItemDecoration(divider)
+
+
         return view
     }
 

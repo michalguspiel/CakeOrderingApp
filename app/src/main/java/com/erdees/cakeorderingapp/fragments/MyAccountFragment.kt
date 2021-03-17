@@ -33,8 +33,7 @@ class MyAccountFragment : Fragment() {
         val view = inflater.inflate(R.layout.my_acc_fragment, container, false)
 
         auth = Firebase.auth
-        val db = Firebase.firestore
-        val user = auth.currentUser
+
 
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_account)

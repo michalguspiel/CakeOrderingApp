@@ -31,4 +31,19 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+
+    <style name="SignikaTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/signika_regular</item>
+    </style>
+
+    <style name="SignikaButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">@font/signika_bold</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.CakeOrderingApp">
+        <item name="android:fontFamily">@font/signika_regular</item>
+        <item name="android:textViewStyle">@style/SignikaTextViewStyle</item>
+        <item name="android:buttonStyle">@style/SignikaButtonStyle</item>
+    </style>
+
 </resources>

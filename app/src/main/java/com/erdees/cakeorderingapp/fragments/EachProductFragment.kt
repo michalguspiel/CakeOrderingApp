@@ -2,6 +2,7 @@ package com.erdees.cakeorderingapp.fragments
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.net.sip.SipSession
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,6 +24,7 @@ import com.erdees.cakeorderingapp.viewmodel.EachProductAdapterViewModel
 import com.erdees.cakeorderingapp.viewmodel.EachProductFragmentViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -33,6 +35,7 @@ import kotlin.collections.HashMap
 
 class EachProductFragment : Fragment() {
     private lateinit var model: Products
+    private lateinit var snapshotListener : ListenerRegistration
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -59,7 +62,7 @@ class EachProductFragment : Fragment() {
          * */
         var amountOfThisProductalreadyInCart = 0L
         val docRef = db.collection("userShoppingCart").document(auth.uid!!)
-            docRef.addSnapshotListener{ snapShot, e ->
+           snapshotListener =  docRef.addSnapshotListener{ snapShot, e ->
                 if (e != null) {
                     return@addSnapshotListener
                 }
@@ -73,13 +76,6 @@ class EachProductFragment : Fragment() {
                     }
                 }
             }
-
-
-
-
-
-
-        /**NEED PRODUCT ID REF*/
 
 
         /**Binders*/
@@ -114,7 +110,7 @@ class EachProductFragment : Fragment() {
             addToCartButton.setOnClickListener {
                 val numberPicker = NumberPicker(requireContext())
                 numberPicker.minValue = 1
-                numberPicker.maxValue = 99
+                numberPicker.maxValue = 999
             val dialog = AlertDialog.Builder(requireContext())
                 .setTitle("How many")
                 .setView(numberPicker)
@@ -124,8 +120,6 @@ class EachProductFragment : Fragment() {
             dialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener {
                 Log.i("test",numberPicker.value.toString())
                 val data = hashMapOf(model.docId to numberPicker.value.toLong() + amountOfThisProductalreadyInCart)
-
-
                     db.collection("userShoppingCart")
                         .document(auth.uid!!).set(data, SetOptions.merge())
 
@@ -151,7 +145,7 @@ class EachProductFragment : Fragment() {
                 .setQuery(query, config, Products::class.java)
                 .build()
 
-            /**SETUP recycler*/
+            /**Setting up recycler*/
             val adapter = EachProductAdapter(options, requireActivity(), parentFragmentManager,ViewModelProvider(this).get(EachProductAdapterViewModel::class.java))
             recycler.adapter = adapter
             recycler.layoutManager = LinearLayoutManager(
@@ -162,6 +156,12 @@ class EachProductFragment : Fragment() {
         })
 
         return view
+    }
+
+    override fun onStop() {
+        Log.i(TAG,"onStop")
+        snapshotListener.remove()
+        super.onStop()
     }
 
     companion object {

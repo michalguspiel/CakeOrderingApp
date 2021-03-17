@@ -21,5 +21,7 @@ class CartItemsRecyclerAdapterViewModel(application: Application): AndroidViewMo
     }
 
     fun setPrice(priceToSet: Double) = priceRepository.setPrice(priceToSet)
+
+    fun clearPrice() = priceRepository.clearPrice()
 }
 

@@ -85,6 +85,9 @@ class MyAccountAdapter(val user: FirebaseUser,val activity: Activity, val parent
 
 
                 editAddressButton.setOnClickListener {
+                    if(editAddressDialog.isAdded){
+                        return@setOnClickListener
+                    } // to prevent crashes
                     editAddressDialog.show(
                         parentFragmentManager.beginTransaction(),
                         EditAddressDialog.TAG
