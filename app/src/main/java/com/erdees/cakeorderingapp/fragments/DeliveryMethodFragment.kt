@@ -31,14 +31,16 @@ class DeliveryMethodFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.delivery_method_fragment, container, false)
         val viewModel = ViewModelProvider(this).get(DeliveryMethodFragmentViewModel::class.java)
-        var prePaidDeliveryCost = 0.0
-        var paidAtDeliveryCost = 0.0
+
         /**Firebase access*/
 
         val auth = Firebase.auth
         val user = auth.currentUser
         val db = Firebase.firestore
 
+        /**Download correct delivery pricing from server*/
+        var prePaidDeliveryCost = 0.0
+        var paidAtDeliveryCost = 0.0
         val docRef = db.collection("constants").document("prices")
         docRef.get().addOnSuccessListener {
                     prePaidDeliveryCost = it[Constants.prePaidCost].toString().toDouble()
@@ -46,10 +48,8 @@ class DeliveryMethodFragment : Fragment() {
                 }
 
 
-
-
         /**Binders*/
-        val costParanthesis = view.findViewById<TextView>(R.id.delivery_method_cost_plus_delivery)
+        val costParenthesis = view.findViewById<TextView>(R.id.delivery_method_cost_plus_delivery)
         val totalCost = view.findViewById<TextView>(R.id.delivery_method_total_cost)
         val radioGroup = view.findViewById<RadioGroup>(R.id.delivery_method_group)
         val radioButtonPickup = view.findViewById<RadioButton>(R.id.delivery_pickup)
@@ -61,24 +61,24 @@ class DeliveryMethodFragment : Fragment() {
             return NumberFormat.getCurrencyInstance(Locale.FRANCE).format(number)
         }
 
-        val cartCost = viewModel.getPriceList.value!!.sum()
+        val cartCost = viewModel.getPrice.value!! // TO GET CART COST FROM VIEWMODEL & CART FRAGMENT
 
 
         val radioListener = RadioGroup.OnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.delivery_pickup -> {
                     totalCost.text = format(cartCost)
-                    costParanthesis.text = ""
+                    costParenthesis.text = ""
                     Toast.makeText(requireContext(), "pickup", Toast.LENGTH_SHORT).show()
                 }
                 R.id.delivery_elves_notpaid -> {
                     totalCost.text = format(cartCost + paidAtDeliveryCost)
-                    costParanthesis.text = "(${format(cartCost)} + ${format(paidAtDeliveryCost)})"
+                    costParenthesis.text = "(${format(cartCost)} + ${format(paidAtDeliveryCost)})"
                     Toast.makeText(requireContext(), "notpaid", Toast.LENGTH_SHORT).show()
                 }
                 R.id.delivery_elves_upfront -> {
                     totalCost.text = format(cartCost + prePaidDeliveryCost)
-                    costParanthesis.text = "(${format(cartCost)} + ${format(prePaidDeliveryCost)})"
+                    costParenthesis.text = "(${format(cartCost)} + ${format(prePaidDeliveryCost)})"
 
                 }
                 else -> {
@@ -122,7 +122,8 @@ class DeliveryMethodFragment : Fragment() {
                         .show()
 
                     db.collection("placedOrders").document().set(orderToPlace)
-                    db.collection("userShoppingCart").document(user.uid).delete()
+                    db.collection("userShoppingCart").document(user.uid).delete() // TODO INSTEAD OF THIS FIND EVERY USER SHOPPING CART DOC WHERE USER ID IS THIS USER ID AND DELETE THAT
+                                                                                                // TODO ITS BETTER TO DO FUNCTION BECAUSE IT WILL BE CALLED FROM 3 DIFFRENT PLACEEEEEZ
                     parentFragmentManager.popBackStackImmediate()
                     AlertDialog.Builder(requireContext())
                         .setMessage("Your order has been placed successfully.")
@@ -145,8 +146,11 @@ class DeliveryMethodFragment : Fragment() {
                 }
             }
 
-
         }
+
+        /**FUNCTIONS PLACE ORDER AND DELETE EVERY ITEM FROM USERSHOPPINGCART*/
+
+
 
 
 

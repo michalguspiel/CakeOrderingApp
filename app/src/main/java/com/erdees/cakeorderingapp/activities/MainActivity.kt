@@ -10,6 +10,7 @@ import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -19,10 +20,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.erdees.cakeorderingapp.R
-import com.erdees.cakeorderingapp.fragments.MainFragment
-import com.erdees.cakeorderingapp.fragments.MyAccountFragment
-import com.erdees.cakeorderingapp.fragments.MyCartFragment
-import com.erdees.cakeorderingapp.fragments.ProductsFragment
+import com.erdees.cakeorderingapp.fragments.*
 import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.openFragment
 import com.erdees.cakeorderingapp.viewmodel.MainActivityViewModel
@@ -40,7 +38,6 @@ import com.google.firebase.ktx.Firebase
  * */
 
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
@@ -50,34 +47,44 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sideNav: NavigationView
     private lateinit var welcomeTextView: TextView
     private lateinit var footer: Button
-    private lateinit var viewModel : MainActivityViewModel
-    private lateinit var listOfProductsInBackStack : List<Products>
+    private lateinit var viewModel: MainActivityViewModel
+    private lateinit var listOfProductsInBackStack: List<Products>
 
     private val myAccountFragment = MyAccountFragment()
     private val mainFragment = MainFragment()
     private val productsFragment = ProductsFragment()
     private val myCartFragment = MyCartFragment()
+
     /** If there are products in viewmodel product list
-        set last product from list as main product(presented in eachProductFramgnet)
-        then delete that from list
-        and return.
+    set last product from list as main product(presented in eachProductFramgnet)
+    then delete that from list
+    and return.
 
-        IDK if that's correct approach but when doing in this way
-        there's no need to reload fragment,
-        and program keeps track of loaded products.
+    IDK if that's correct approach but when doing in this way
+    there's no need to reload fragment,
+    and program keeps track of loaded products.
 
-        So productList in productDAO is like backstack of
-        presented products in EachProductFragment
+    So productList in productDAO is like backstack of
+    presented products in EachProductFragment
      */
     override fun onBackPressed() {
-        if(!viewModel.getProductList.value.isNullOrEmpty()){
-            viewModel.setProduct(viewModel.getProductList.value!!.last())
-            viewModel.removeLastProductFromList()
+        if (sideNav.isVisible) {
+            drawerLayout.closeDrawer(Gravity.RIGHT)
             return
         }
-        if(supportFragmentManager.backStackEntryCount == 1) this.finish()
-        else  super.onBackPressed()
+        val eachProductFragment = supportFragmentManager.findFragmentByTag(EachProductFragment.TAG)
+        if (eachProductFragment != null) {
+            if (!viewModel.getProductList.value.isNullOrEmpty() && eachProductFragment.isVisible) {
+                Log.i(TAG, "visible")
+                viewModel.setProduct(viewModel.getProductList.value!!.last())
+                viewModel.removeLastProductFromList()
+                return
+            }
+        }
+        if (supportFragmentManager.backStackEntryCount == 1) this.finish()
+        else super.onBackPressed()
     }
+
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "on start")
@@ -111,10 +118,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-private fun setWelcomeMsg(user: FirebaseUser?): String{
-    return if (user?.displayName != null ) "Welcome " + user.displayName
-    else "Welcome " + user?.email
-}
+    private fun setWelcomeMsg(user: FirebaseUser?): String {
+        return if (user?.displayName != null) "Welcome " + user.displayName
+        else "Welcome " + user?.email
+    }
 
     private companion object {
         const val TAG = "MainActivity"
@@ -132,12 +139,10 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
 
 
         /**Initialize Viewmodel and get products list and last product in that list*/
-          viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         viewModel.getProductList.observe(this, Observer { list ->
             listOfProductsInBackStack = list
         })
-
-
 
 
         val manager: FragmentManager = supportFragmentManager
@@ -160,7 +165,7 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
 
         }
 
-        fun openLoginActivity(){
+        fun openLoginActivity() {
             val loginActivity = Intent(this, LoginActivity::class.java)
             startActivity(loginActivity, savedInstanceState)
         }
@@ -172,8 +177,8 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
             openLoginActivity()
         }
 
-        cartButton.setOnClickListener{
-            openFragment(myCartFragment,MyCartFragment.TAG,supportFragmentManager)
+        cartButton.setOnClickListener {
+            openFragment(myCartFragment, MyCartFragment.TAG, supportFragmentManager)
         }
 
         /**Firebase*/
@@ -192,7 +197,7 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
                 when (item.itemId) {
                     R.id.mi_account -> {
                         if (auth.currentUser == null) openLoginActivity()
-                        else openFragment(myAccountFragment, MyAccountFragment.TAG,manager)
+                        else openFragment(myAccountFragment, MyAccountFragment.TAG, manager)
 
                     }
                     R.id.mi_orders -> {
@@ -204,7 +209,7 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
                     R.id.mi_calendar -> {
                     }
                     R.id.mi_products -> {
-                        openFragment(productsFragment,ProductsFragment.TAG,manager)
+                        openFragment(productsFragment, ProductsFragment.TAG, manager)
                     }
                     else -> {
                         logout()
@@ -214,7 +219,7 @@ private fun setWelcomeMsg(user: FirebaseUser?): String{
                 drawerLayout.closeDrawer(GravityCompat.END)
                 return@OnNavigationItemSelectedListener true
             }
-        openFragment(mainFragment, MainFragment.TAG,manager)
+        openFragment(mainFragment, MainFragment.TAG, manager)
         welcomeTextView = sideNav.getHeaderView(0).findViewById(R.id.user_name_header)
         sideNav.setNavigationItemSelectedListener(sideNavListener)
     }

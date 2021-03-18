@@ -84,9 +84,11 @@ class EachProductFragment : Fragment() {
         val desc = view.findViewById<TextView>(R.id.each_product_desc)
         val waitingTime = view.findViewById<TextView>(R.id.each_product_waiting_time)
         val price = view.findViewById<TextView>(R.id.each_product_price)
+        val ingredientList = view.findViewById<TextView>(R.id.each_product_ingredients)
         val recycler = view.findViewById<RecyclerView>(R.id.each_products_additional_recycler)
         val scrollView = view.findViewById<ScrollView>(R.id.each_product_scroll_view)
         val addToCartButton = view.findViewById<Button>(R.id.each_product_add_to_cart_button)
+
 
         /**Then access the model passed from viewmodel*/
         viewModel.getProduct.observe(viewLifecycleOwner, {
@@ -100,6 +102,8 @@ class EachProductFragment : Fragment() {
             name.text = model.productName
             desc.text = model.productDesc
             price.text = NumberFormat.getCurrencyInstance(Locale.FRANCE).format(model.productPrice)
+            ingredientList.text = "Product includes: " + model.productIngredients.joinToString(", ") { it } + "."
+
 
             waitingTime.text = when (model.productWaitTime) {
                 0L -> "Available same day in shop or to be delivered next day."
@@ -119,10 +123,15 @@ class EachProductFragment : Fragment() {
                 .show()
             dialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener {
                 Log.i("test",numberPicker.value.toString())
-                val data = hashMapOf(model.docId to numberPicker.value.toLong() + amountOfThisProductalreadyInCart)
+                val cartMap = HashMap<String, Any>()
+                cartMap.put("productId",model.docId)
+                cartMap.put("productName",model.productName)
+                cartMap.put("userId",auth.currentUser.uid)
+                cartMap.put("productPrice",model.productPrice)
+                cartMap.put("quantity",numberPicker.value.toLong())
+                cartMap.put("productPictureUrl",model.productPictureUrl)
                     db.collection("userShoppingCart")
-                        .document(auth.uid!!).set(data, SetOptions.merge())
-
+                        .document().set(cartMap, SetOptions.merge())
 
                 dialog.dismiss()
             }
@@ -132,7 +141,7 @@ class EachProductFragment : Fragment() {
             /**All of these is inside observe because it needs initialized model to
              * not display in bottom recycler view product that is presented on top */
             val query = db.collection("products")
-                .whereArrayContains("productTags", "bread") // TODO FOR TESTING THIS IS SET ALWAYS TO BREAD
+                .whereArrayContains("productTags", randomizeTag()) // TODO FOR TESTING THIS IS SET ALWAYS TO BREAD
                 .limit(7)
                 .whereNotEqualTo("productName",model.productName)
             val config = PagedList.Config.Builder()

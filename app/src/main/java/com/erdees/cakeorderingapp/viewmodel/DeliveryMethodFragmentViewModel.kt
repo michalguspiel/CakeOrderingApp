@@ -9,12 +9,13 @@ import com.erdees.cakeorderingapp.repository.PriceRepository
 class DeliveryMethodFragmentViewModel(application: Application): AndroidViewModel(application) {
 
     private val priceRepository: PriceRepository
-    val getPriceList : LiveData<List<Double>>
+    val getPrice : LiveData<Double>
+
 
     init {
         val priceDao = Database.getInstance().priceDao
         priceRepository = PriceRepository(priceDao)
-        getPriceList = priceRepository.getPrice()
+        getPrice = priceRepository.getPrice()
     }
 
 }

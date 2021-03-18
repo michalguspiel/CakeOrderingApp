@@ -9,7 +9,7 @@
     <LinearLayout
         android:id="@+id/cart_linear_layout_1"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="60dp"
         android:background="@drawable/cart_rectangle"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,11 +21,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
             android:textColor="@color/black"
             android:textSize="18sp"
-            tools:text="3 items in basket" />
+            tools:text="Your shopping cart with 5 products.\nEnjoy!" />
     </LinearLayout>
 
     <LinearLayout
@@ -64,7 +64,7 @@
     <LinearLayout
         android:id="@+id/cart_linear_layout_2"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="60dp"
         android:background="@drawable/cart_rectangle"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
@@ -78,12 +78,11 @@
             android:id="@+id/my_cart_total_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:layout_gravity="right"
-            android:layout_marginTop="20dp"
+            android:layout_marginEnd="10dp"
+            android:layout_gravity="center_vertical|end"
             android:textColor="@color/black"
             android:textSize="18sp"
-            tools:text="3 items in basket" />
+            tools:text="Price of your shopping cart 35,95€" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
