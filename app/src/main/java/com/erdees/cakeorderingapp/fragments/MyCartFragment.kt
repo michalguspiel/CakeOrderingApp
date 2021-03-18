@@ -65,6 +65,11 @@ class MyCartFragment : Fragment() {
         /**Configurate options in order to populate cart*/
         val query = db.collection("userShoppingCart")
             .whereEqualTo("userId",user.uid)
+
+
+        /**SENDING QUERY TO VIEWMODEL SO APP DOESNT HAVE TO DOWNLOAD IT OVER AND OVER AGAIN*/
+        viewModel.setViewModelQuery(query)
+
         val options = FirestoreRecyclerOptions.Builder<UserShoppingCart>()
             .setQuery(query,UserShoppingCart::class.java)
             .setLifecycleOwner(this)
