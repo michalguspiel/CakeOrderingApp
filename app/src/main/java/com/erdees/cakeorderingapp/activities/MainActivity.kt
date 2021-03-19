@@ -19,6 +19,8 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
+import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.fragments.*
 import com.erdees.cakeorderingapp.model.Products
@@ -30,7 +32,10 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.Stripe
 
 
 /**
@@ -39,6 +44,7 @@ import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : AppCompatActivity() {
+
 
     private lateinit var auth: FirebaseAuth
     private lateinit var cartButton: ImageButton
@@ -131,6 +137,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val db = Firebase.firestore
+        /**Shared preferences,
+         * whenever app starts
+         * delivery pricing is downloaded from server and saved in shared preferences*/
+        val sharedPreferences = SharedPreferences(this)
+
+        /**Download correct delivery pricing from server
+         * and save it in shared preferences*/
+        val pricesDocRef = db.collection("constants").document("prices")
+        pricesDocRef.get().addOnSuccessListener {
+            sharedPreferences.save("prePaidCost",it[Constants.prePaidCost].toString())
+            sharedPreferences.save("paidAtDeliveryCost",it[Constants.paidAtDeliveryCost].toString())
+        }
 
         /**Get Screen width*/
         val displayMetrics = DisplayMetrics()
@@ -223,47 +242,6 @@ class MainActivity : AppCompatActivity() {
         welcomeTextView = sideNav.getHeaderView(0).findViewById(R.id.user_name_header)
         sideNav.setNavigationItemSelectedListener(sideNavListener)
     }
-
-
-    /**
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-    menuInflater.inflate(R.menu.toolbar_buttons, menu)
-    // setToolbar(menu)
-    return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-    setToolbar(menu)
-    return super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    when (item.itemId) {
-    R.id.mi_logout -> {
-    Log.i(TAG, "LOGOUT")
-    auth.signOut()
-    isUserLogedIn = false
-    cartButton.visibility = View.GONE
-    }
-    R.id.mi_login -> {
-    Log.i(TAG, "LOGIN")
-    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-    .requestIdToken(getString(R.string.default_web_client_id))
-    .requestEmail()
-    .build()
-    auth = Firebase.auth  // Initialize Firebase Auth
-    val googleSignInClient = GoogleSignIn.getClient(this, gso)
-    // pop dialog with login options. For now just login
-    val signInIntent = googleSignInClient.signInIntent
-    startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN)
-    }
-    else -> Log.i(TAG, "ERROR")
-    }
-
-    return super.onOptionsItemSelected(item)
-    }
-
-     */
 
 
 }

@@ -10,7 +10,7 @@ data class Order(
     val userShoppingCart: List<UserShoppingCart> = listOf(),
     val userId : String = "",
     var deliveryMethod: String = "",
-    val paid : Boolean = false,
+    var paid : Boolean = false,
     val timestamp: Timestamp = Timestamp.now(),
     val orderToBeReadyDate: Timestamp = Timestamp.now(),
     val userAddress: String = "",

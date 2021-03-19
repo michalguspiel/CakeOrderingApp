@@ -99,6 +99,8 @@ class MyCartFragment : Fragment() {
 
                 }
                 headerText.text = setHeader(howManyItems)
+                proceedButton.isEnabled = howManyItems != 0 // no reason to proceed with empty basket
+
                 val totalPrice = priceList.sum()
                 val totalPriceFormatted = NumberFormat.getCurrencyInstance(Locale.FRANCE).format(totalPrice)
                 cartTotalPrice.text = "Price of your shopping cart " + totalPriceFormatted + "."

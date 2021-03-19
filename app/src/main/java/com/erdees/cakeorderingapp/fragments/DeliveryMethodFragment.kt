@@ -2,6 +2,8 @@ package com.erdees.cakeorderingapp.fragments
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,22 +12,47 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.stripe.FirebaseEphemeralKeyProvider
 import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
+import com.erdees.cakeorderingapp.activities.MainActivity
 import com.erdees.cakeorderingapp.model.Order
 import com.erdees.cakeorderingapp.model.User
 import com.erdees.cakeorderingapp.model.UserShoppingCart
 import com.erdees.cakeorderingapp.viewmodel.DeliveryMethodFragmentViewModel
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import com.stripe.android.*
+import com.stripe.android.model.ConfirmPaymentIntentParams
+import com.stripe.android.model.KlarnaSourceParams
+import com.stripe.android.model.PaymentMethod
+import com.stripe.android.view.BillingAddressFields
 import java.text.NumberFormat
 import java.util.*
 
 class DeliveryMethodFragment : Fragment() {
+    private lateinit var user: FirebaseUser
+    lateinit var db : FirebaseFirestore
+    lateinit var userCart : Query
 
+
+    private lateinit var snapshotListener : ListenerRegistration
+
+    lateinit var paymentSession: PaymentSession
+    lateinit var selectedPaymentMethod : PaymentMethod
+    private val stripe: Stripe by lazy { Stripe(requireContext(), PaymentConfiguration.getInstance(requireActivity()).publishableKey) }
+
+    private var costToPay : Double = 0.0
+    private lateinit var confirmPurchaseButton : Button
+    private lateinit var paymentMethodTextView: TextView
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -39,8 +66,11 @@ class DeliveryMethodFragment : Fragment() {
         /**Firebase access*/
 
         val auth = Firebase.auth
-        val user = auth.currentUser
-        val db = Firebase.firestore
+        user = auth.currentUser
+        db = Firebase.firestore
+
+
+        setupPaymentSession()
 
         var userAddress = ""
         /**ACCESS TO USER ADDRESS*/
@@ -55,14 +85,12 @@ class DeliveryMethodFragment : Fragment() {
         }
 
 
-        /**Download correct delivery pricing from server*/
-        var prePaidDeliveryCost = 0.0
-        var paidAtDeliveryCost = 0.0
-        val pricesDocRef = db.collection("constants").document("prices")
-        pricesDocRef.get().addOnSuccessListener {
-            prePaidDeliveryCost = it[Constants.prePaidCost].toString().toDouble()
-            paidAtDeliveryCost = it[Constants.paidAtDeliveryCost].toString().toDouble()
-        }
+        /**Get delivery prices from shared preferences
+         * */
+        val sharedPreferences = SharedPreferences(requireContext())
+        val prePaidDeliveryCost = sharedPreferences.getValueString("prePaidCost")!!.toDouble()
+        val paidAtDeliveryCost = sharedPreferences.getValueString("paidAtDeliveryCost")!!.toDouble()
+
 
 
         /**Binders*/
@@ -72,20 +100,20 @@ class DeliveryMethodFragment : Fragment() {
         val radioButtonPickup = view.findViewById<RadioButton>(R.id.delivery_pickup)
         val radioButtonNotPaid = view.findViewById<RadioButton>(R.id.delivery_elves_notpaid)
         val radioButtonPaid = view.findViewById<RadioButton>(R.id.delivery_elves_upfront)
-        val confirmPurchaseButton = view.findViewById<Button>(R.id.delivery_method_confirm_button)
-
+        confirmPurchaseButton = view.findViewById<Button>(R.id.delivery_method_confirm_button)
+        paymentMethodTextView = view.findViewById(R.id.payment_method_text_view)
         fun format(number: Double): String {
             return NumberFormat.getCurrencyInstance(Locale.FRANCE).format(number)
         }
 
         val cartCost = viewModel.getPrice.value!! // TO GET CART COST FROM VIEWMODEL & CART FRAGMENT
-
+        paymentMethodTextView.visibility = View.GONE
         /**Creating list of items
          * then getting query of all of this user "userShoppingCarts"
          * and saving it in value userShoppingItems
          * in order to use it when placing order*/
         val userShoppingItems: MutableList<UserShoppingCart> = mutableListOf()
-        val userCart = db.collection("userShoppingCart").whereEqualTo("userId", user.uid)
+        userCart = db.collection("userShoppingCart").whereEqualTo("userId", user.uid)
         userCart.get().addOnSuccessListener { snapshot ->
             snapshot.forEach { userShoppingItems += it.toObject<UserShoppingCart>() }
         }
@@ -96,19 +124,30 @@ class DeliveryMethodFragment : Fragment() {
 
             when (checkedId) {
                 R.id.delivery_pickup -> {
-                    totalCost.text = format(cartCost)
+                    paymentMethodTextView.visibility = View.GONE
+                    confirmPurchaseButton.isEnabled = true
+                    costToPay = cartCost
+                    totalCost.text = format(costToPay)
                     costParenthesis.text = ""
                     Toast.makeText(requireContext(), "pickup", Toast.LENGTH_SHORT).show()
                 }
                 R.id.delivery_elves_notpaid -> {
-                    userShoppingItems.forEach { Log.i(TAG, it.productName + it.quantity) }
+                    paymentMethodTextView.visibility = View.GONE
 
-                    totalCost.text = format(cartCost + paidAtDeliveryCost)
+                    confirmPurchaseButton.isEnabled = true
+                    userShoppingItems.forEach { Log.i(TAG, it.productName + it.quantity) }
+                    costToPay = cartCost + paidAtDeliveryCost
+                    totalCost.text = format(costToPay)
                     costParenthesis.text = "(${format(cartCost)} + ${format(paidAtDeliveryCost)})"
                     Toast.makeText(requireContext(), "notpaid", Toast.LENGTH_SHORT).show()
                 }
                 R.id.delivery_elves_upfront -> {
-                    totalCost.text = format(cartCost + prePaidDeliveryCost)
+                    costToPay = cartCost + prePaidDeliveryCost
+                    paymentMethodTextView.visibility = View.VISIBLE
+                    confirmPurchaseButton.isEnabled = false
+
+                    showUI()
+                    totalCost.text = format(costToPay)
                     costParenthesis.text = "(${format(cartCost)} + ${format(prePaidDeliveryCost)})"
 
                 }
@@ -140,35 +179,13 @@ class DeliveryMethodFragment : Fragment() {
         }
 
 
-        /**FUNCTIONS PLACE ORDER AND DELETE EVERY ITEM FROM USERSHOPPINGCART*/
-
-        fun placeOrder(order: Order) {
-
-            db.collection("placedOrders").document().set(order)
-        }
-
-        fun cleanShoppingCart() {
-            userCart.get().addOnSuccessListener { snapShot ->
-                snapShot.forEach {
-                    db.collection("userShoppingCart").document(it.id).delete()
-                }
-            }
-        }
-
-        val notificationDialog =
-            AlertDialog.Builder(requireContext())
-            .setMessage("Your order has been placed successfully.")
-            .setOnDismissListener {
-                parentFragmentManager.popBackStackImmediate()
-            }
-            .setNegativeButton("Back", null)
 
         confirmPurchaseButton.setOnClickListener {
 
             val orderToPlace: Order = Order(
                 userShoppingItems,
                 user.uid,
-                "pickup",
+                "Pickup",
                 false,
                 Timestamp.now(),
                 Timestamp.now(), // TODO in future picking up date
@@ -179,9 +196,11 @@ class DeliveryMethodFragment : Fragment() {
 
             when {
                 radioButtonPickup.isChecked -> {
+                    orderToPlace.deliveryMethod = "Pickup"
+                    orderToPlace.paid = false
                     placeOrder(orderToPlace)
                     cleanShoppingCart()
-                    notificationDialog.show()
+                    showDialog()
                 }
                 radioButtonNotPaid.isChecked -> {
                     if(userAddress.isNullOrBlank()) {
@@ -193,27 +212,177 @@ class DeliveryMethodFragment : Fragment() {
                         return@setOnClickListener
                     }
                     orderToPlace.deliveryMethod = "Delivery unpaid"
+                    orderToPlace.paid = false
                     placeOrder(orderToPlace)
                     cleanShoppingCart()
-                    notificationDialog.show()
+                    showDialogPrePaid()
                 }
                 radioButtonPaid.isChecked -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "ORDERED WITH PAID DELIVERY",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    orderToPlace.deliveryMethod = "Delivery prepaid"
+                    orderToPlace.paid = true
+                    confirmPayment(selectedPaymentMethod.id!!,orderToPlace)
+
                 }
             }
+
+        }
+
+        paymentMethodTextView.setOnClickListener {
+            paymentSession.presentPaymentMethodSelection()
 
         }
 
 
 
 
-
-
+        showUI()
         return view
+    }
+
+    private fun setupPaymentSession () {
+        PaymentConfiguration.init(
+            requireContext(),
+            "pk_test_51IWNZYFWPZNf15isNRfq1xDAm8IrX0Rs4AHQJWkzpHiUPmtjB2gubJFlkxUi8v3QN1DvrYFztoyYI67khp499F7y005giE0ss6"
+        )
+        // Setup Customer Session
+        CustomerSession.initCustomerSession(requireContext(), FirebaseEphemeralKeyProvider())
+        // Setup a payment session
+        paymentSession = PaymentSession(this, PaymentSessionConfig.Builder()
+            .setShippingInfoRequired(false)
+            .setShippingMethodsRequired(false)
+            .setBillingAddressFields(BillingAddressFields.None)
+            .setShouldShowGooglePay(true)
+            .build())
+
+        paymentSession.init(
+            object: PaymentSession.PaymentSessionListener {
+                override fun onPaymentSessionDataChanged(data: PaymentSessionData) {
+                    Log.d("PaymentSession", "PaymentSession has changed: $data")
+                    Log.d("PaymentSession", "${data.isPaymentReadyToCharge} <> ${data.paymentMethod}")
+
+                    if (data.isPaymentReadyToCharge) {
+                        Log.d("PaymentSession", "Ready to charge");
+                        confirmPurchaseButton.isEnabled = true
+
+                        data.paymentMethod?.let {
+                            Log.d("PaymentSession", "PaymentMethod $it selected")
+                         paymentMethodTextView.text = "${it.card?.brand} card ends with ${it.card?.last4}"
+                            selectedPaymentMethod = it
+                        }
+                    }
+                }
+
+                override fun onCommunicatingStateChanged(isCommunicating: Boolean) {
+                    Log.d("PaymentSession",  "isCommunicating $isCommunicating")
+                }
+
+                override fun onError(errorCode: Int, errorMessage: String) {
+                    Log.e("PaymentSession",  "onError: $errorCode, $errorMessage")
+                }
+            }
+        )
+
+    }
+    /**FUNCTIONS PLACE ORDER AND DELETE EVERY ITEM FROM USERSHOPPINGCART*/
+    fun placeOrder(order: Order) {
+        db.collection("placedOrders").document().set(order)
+    }
+    fun cleanShoppingCart() {
+        userCart.get().addOnSuccessListener { snapShot ->
+            snapShot.forEach {
+                db.collection("userShoppingCart").document(it.id).delete()
+            }
+        }
+    }
+
+    fun showDialogPrePaid(){
+            AlertDialog.Builder(requireContext())
+                .setMessage("Your order has been placed successfully.")
+                .setOnDismissListener {
+                    snapshotListener.remove()
+                }
+                .setNegativeButton("Back", null)
+                .show()
+    }
+    fun showDialog(){
+            AlertDialog.Builder(requireContext())
+                .setMessage("Your order has been placed successfully.")
+                .setOnDismissListener {
+        requireActivity().supportFragmentManager.popBackStackImmediate()
+                }
+                .setNegativeButton("Back", null)
+                .show()
+    }
+
+    private fun confirmPayment(paymentMethodId: String,order: Order) {
+        confirmPurchaseButton.isEnabled = false
+
+        val paymentCollection = Firebase.firestore
+            .collection("stripe_customers").document(user?.uid?:"")
+            .collection("payments")
+
+        // Add a new document with a generated ID
+
+        paymentCollection.add(hashMapOf(
+            "amount" to (costToPay * 100).toLong(),
+            "currency" to "EUR"
+        ))
+            .addOnSuccessListener { documentReference ->
+                Log.d("payment", "DocumentSnapshot added with ID: ${documentReference.id}")
+                 snapshotListener =  documentReference.addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.w("payment", "Listen failed.", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null && snapshot.exists()) {
+                        Log.d("payment", "Current data: ${snapshot.data}")
+                        val clientSecret = snapshot.data?.get("client_secret")
+                        Log.d("payment", "Create paymentIntent returns $clientSecret")
+                        clientSecret?.let {
+                            stripe.confirmPayment(this, ConfirmPaymentIntentParams.createWithPaymentMethodId(
+                                paymentMethodId,
+                                (it as String)
+                            ))
+                            placeOrder(order)
+                            cleanShoppingCart()
+                            showDialogPrePaid()
+                            requireActivity().supportFragmentManager.popBackStackImmediate()
+                            Toast.makeText(requireContext(), "Payme nt Done!!", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        Log.e("payment", "Current payment intent : null")
+                       confirmPurchaseButton.isEnabled = true
+                    }
+                }
+            }
+
+            .addOnFailureListener { e ->
+                Log.w("payment", "Error adding document", e)
+              confirmPurchaseButton.isEnabled = true
+            }
+
+
+    }
+
+
+
+
+    private fun showUI() {
+        user.let {
+            setupPaymentSession()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (data != null) {
+            paymentSession.handlePaymentData(requestCode, resultCode, data)
+        }
     }
 
     companion object {
@@ -221,3 +390,4 @@ class DeliveryMethodFragment : Fragment() {
         fun newInstance(): DeliveryMethodFragment = DeliveryMethodFragment()
     }
 }
+
