@@ -23,6 +23,7 @@ import com.erdees.cakeorderingapp.randomizeTag
 import com.erdees.cakeorderingapp.viewmodel.EachProductAdapterViewModel
 import com.erdees.cakeorderingapp.viewmodel.EachProductFragmentViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
@@ -36,6 +37,8 @@ import kotlin.collections.HashMap
 class EachProductFragment : Fragment() {
     private lateinit var model: Products
     private lateinit var snapshotListener : ListenerRegistration
+
+    private lateinit var addToCartButton : Button
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,6 +55,7 @@ class EachProductFragment : Fragment() {
         val db = Firebase.firestore
         val auth = Firebase.auth
 
+
         /**NEED TO CHECK IF USER HAS THIS PRODUCT IN HIS CART
          * IF YES THEN HOW MANY
          * SO I CAN SUM IT WITH AMOUNT THAT USER WANTS TO ADD RIGHT NOW
@@ -59,9 +63,12 @@ class EachProductFragment : Fragment() {
          * LETS SAY WHEN USER HAS 3 CHOCO MUFFINS ALREADY IN HIS CART
          * AND WANT TO ADD 2 MORE
          * THIS COMPUTES INTO 5 AND THEN OVERRIDES THAT 2 IN CART WITH NEW AMOUNT
-         * */
+         *
+         * FOR NOW SWITCHING THIS OPTION OFF BUT IN FUTURE I CAN RE IMPLEMENT IT
+         * WHY SWITCH IT OFF? BECAUSE WITH CURRENT DATABASE ARCHITECTURE I CAN HAVE MANY SAME PRODUCTS IN BASKET UNDER DIFFRENT ID
+         *
         var amountOfThisProductalreadyInCart = 0L
-        val docRef = db.collection("userShoppingCart").document(auth.uid!!)
+        val docRef = db.collection("userShoppingCart").document(auth.uid?)
            snapshotListener =  docRef.addSnapshotListener{ snapShot, e ->
                 if (e != null) {
                     return@addSnapshotListener
@@ -76,7 +83,7 @@ class EachProductFragment : Fragment() {
                     }
                 }
             }
-
+*/
 
         /**Binders*/
         val image = view.findViewById<ImageView>(R.id.each_product_picture)
@@ -87,10 +94,11 @@ class EachProductFragment : Fragment() {
         val ingredientList = view.findViewById<TextView>(R.id.each_product_ingredients)
         val recycler = view.findViewById<RecyclerView>(R.id.each_products_additional_recycler)
         val scrollView = view.findViewById<ScrollView>(R.id.each_product_scroll_view)
-        val addToCartButton = view.findViewById<Button>(R.id.each_product_add_to_cart_button)
+        addToCartButton = view.findViewById(R.id.each_product_add_to_cart_button)
+        setUI(auth.currentUser != null)
 
 
-        /**Then access the model passed from viewmodel*/
+        /**Access the model passed from viewmodel*/
         viewModel.getProduct.observe(viewLifecycleOwner, {
             scrollView.fullScroll(ScrollView.FOCUS_UP)
             model = it
@@ -164,12 +172,19 @@ class EachProductFragment : Fragment() {
             )
         })
 
+
+
         return view
     }
 
+    fun setUI(isUserLogedIn: Boolean){
+        addToCartButton.isEnabled = isUserLogedIn
+    }
+
+
     override fun onStop() {
         Log.i(TAG,"onStop")
-        snapshotListener.remove()
+       // snapshotListener.remove()
         super.onStop()
     }
 

@@ -74,9 +74,37 @@
         android:id="@+id/payment_method_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select payment method"
+        android:layout_marginTop="8dp"
+        android:drawableStart="@drawable/ic_baseline_credit_card_24"
+        android:drawableTint="?android:textColorPrimary"
+        android:textAppearance="@android:style/TextAppearance"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/delivery_method_group" />
+        app:layout_constraintTop_toBottomOf="@+id/delivery_method_group"
+        tools:text="Select payment method" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/loading_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Loading..."
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

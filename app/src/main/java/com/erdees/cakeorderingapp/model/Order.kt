@@ -15,7 +15,8 @@ data class Order(
     val orderToBeReadyDate: Timestamp = Timestamp.now(),
     val userAddress: String = "",
     val orderStatus : String = "active",
-    val discount : Double = 0.0
+    val discount : Double = 0.0,
+    var stripePaymentRef : String = ""
 
 
 ) {
