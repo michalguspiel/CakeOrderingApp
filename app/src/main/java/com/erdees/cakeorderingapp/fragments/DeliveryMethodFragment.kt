@@ -3,7 +3,6 @@ package com.erdees.cakeorderingapp.fragments
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -15,11 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.stripe.FirebaseEphemeralKeyProvider
-import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
-import com.erdees.cakeorderingapp.activities.MainActivity
 import com.erdees.cakeorderingapp.model.Order
-import com.erdees.cakeorderingapp.model.User
 import com.erdees.cakeorderingapp.model.UserShoppingCart
 import com.erdees.cakeorderingapp.viewmodel.DeliveryMethodFragmentViewModel
 import com.google.firebase.Timestamp
@@ -33,7 +29,6 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.stripe.android.*
 import com.stripe.android.model.ConfirmPaymentIntentParams
-import com.stripe.android.model.KlarnaSourceParams
 import com.stripe.android.model.PaymentMethod
 import com.stripe.android.view.BillingAddressFields
 import java.text.NumberFormat

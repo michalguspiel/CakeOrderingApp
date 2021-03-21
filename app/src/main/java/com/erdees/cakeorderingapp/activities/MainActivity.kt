@@ -60,6 +60,7 @@ class MainActivity : AppCompatActivity() {
     private val mainFragment = MainFragment()
     private val productsFragment = ProductsFragment()
     private val myCartFragment = MyCartFragment()
+    private val myOrdersFragment = MyOrdersFragment()
 
     /** If there are products in viewmodel product list
     set last product from list as main product(presented in eachProductFramgnet)
@@ -221,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     R.id.mi_orders -> {
                         if (auth.currentUser == null) openLoginActivity()
-                        else Toast.makeText(this, "Orders!", Toast.LENGTH_SHORT).show()
+                        else openFragment(myOrdersFragment,MyOrdersFragment.TAG,manager)
                     }
                     R.id.mi_settings -> {
                     }
