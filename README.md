@@ -6,13 +6,13 @@ I think app would look better if the pics were a bit more professional(right now
 ## Screenshots
 
 <p align="center">
- <img src="https://user-images.githubusercontent.com/70368829/112008343-0f840980-8b2e-11eb-96b9-cf85604e6054.png" width="350">
-   <img src="https://user-images.githubusercontent.com/70368829/112008351-10b53680-8b2e-11eb-8b4d-15106a3f40db.png" width="350">
- <img src="https://user-images.githubusercontent.com/70368829/112008362-14e15400-8b2e-11eb-92bb-53890be243c8.png" width="350">
-  <img src="https://user-images.githubusercontent.com/70368829/112008366-14e15400-8b2e-11eb-97df-c8dba188156b.png" width="350">
-   <img src="https://user-images.githubusercontent.com/70368829/112008372-1743ae00-8b2e-11eb-98b9-ace3f9c0b1fc.png" width="350">
-   <img src="https://user-images.githubusercontent.com/70368829/112008376-17dc4480-8b2e-11eb-9ecc-02cda98edd04.png" width="350">
-   <img src="https://user-images.githubusercontent.com/70368829/112008385-1a3e9e80-8b2e-11eb-8fd6-f2255218f722.png" width="350">
+ <img src="https://user-images.githubusercontent.com/70368829/112008343-0f840980-8b2e-11eb-96b9-cf85604e6054.png" width="320">
+   <img src="https://user-images.githubusercontent.com/70368829/112008351-10b53680-8b2e-11eb-8b4d-15106a3f40db.png" width="320">
+ <img src="https://user-images.githubusercontent.com/70368829/112008362-14e15400-8b2e-11eb-92bb-53890be243c8.png" width="320">
+  <img src="https://user-images.githubusercontent.com/70368829/112008366-14e15400-8b2e-11eb-97df-c8dba188156b.png" width="320">
+   <img src="https://user-images.githubusercontent.com/70368829/112008372-1743ae00-8b2e-11eb-98b9-ace3f9c0b1fc.png" width="320">
+   <img src="https://user-images.githubusercontent.com/70368829/112008376-17dc4480-8b2e-11eb-9ecc-02cda98edd04.png" width="320">
+   <img src="https://user-images.githubusercontent.com/70368829/112008385-1a3e9e80-8b2e-11eb-8fd6-f2255218f722.png" width="320">
 </p>
 
 
