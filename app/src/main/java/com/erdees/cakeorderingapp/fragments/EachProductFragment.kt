@@ -98,6 +98,7 @@ class EachProductFragment : Fragment() {
         setUI(auth.currentUser != null)
 
 
+
         /**Access the model passed from viewmodel*/
         viewModel.getProduct.observe(viewLifecycleOwner, {
             scrollView.fullScroll(ScrollView.FOCUS_UP)

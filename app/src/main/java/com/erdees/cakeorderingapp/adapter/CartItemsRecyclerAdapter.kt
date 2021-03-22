@@ -53,9 +53,7 @@ class CartItemsRecyclerAdapter(
         ref.update(newDocAsMap)
     }
 
-    fun deleteProductFromCart(model: UserShoppingCart){
 
-    }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int, model: UserShoppingCart) {
         /**Binders*/
@@ -96,10 +94,6 @@ class CartItemsRecyclerAdapter(
 
             }
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-               // val updates = hashMapOf<String, Any>(
-              //      productId to FieldValue.delete()
-             //   )
-            //    docRef.update(updates).addOnCompleteListener { }
 
                 db.collection("userShoppingCart").document(model.docId)
                     .delete()

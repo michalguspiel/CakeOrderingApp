@@ -21,6 +21,7 @@ import com.erdees.cakeorderingapp.model.Order
 import com.erdees.cakeorderingapp.model.Products
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -66,13 +67,13 @@ class MyOrdersFragment : Fragment() {
         val activeQuery = db.collection("placedOrders")
             .whereEqualTo("userId",auth.uid)
             .whereEqualTo("orderStatus","active")
-            .orderBy("timestamp")
+            .orderBy("timestamp",Query.Direction.DESCENDING)
             .limit(10)
         //THIS USER HISTORY ORDERS
         val historyQuery = db.collection("placedOrders")
             .whereEqualTo("userId",auth.uid)
             .whereEqualTo("orderStatus","completed")
-            .orderBy("timestamp")
+            .orderBy("timestamp",Query.Direction.DESCENDING)
             .limit(10)
         val config = PagedList.Config.Builder()
             .setEnablePlaceholders(false)

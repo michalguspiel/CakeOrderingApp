@@ -172,7 +172,6 @@ class DeliveryMethodFragment : Fragment() {
 
 
         confirmPurchaseButton.setOnClickListener {
-
             val orderToPlace: Order = Order(
                 userShoppingItems,
                 user.uid,
@@ -185,7 +184,6 @@ class DeliveryMethodFragment : Fragment() {
                 Constants.orderActive,
                 0.0
             )
-
             when { // FIRST CHANGING ORDER VALUES TO APPROPRIATE THEN PLACING ORDER THEN  SHOW CONFIRMATION DIALOG WHICH TRIGGERS INFORMATION DIALOG
                 radioButtonPickup.isChecked -> {
                     orderToPlace.deliveryMethod = "Pickup"
