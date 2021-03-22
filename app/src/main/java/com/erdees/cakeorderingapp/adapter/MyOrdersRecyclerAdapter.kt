@@ -11,9 +11,12 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.fragments.EachOrderFragment
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.viewmodel.MyOrdersRecyclerAdapterViewModel
 import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.model.Order
+import com.erdees.cakeorderingapp.openFragment
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
 import java.text.NumberFormat
@@ -24,16 +27,12 @@ class MyOrdersRecyclerAdapter(
     options: FirestorePagingOptions<Order>,
     val activity: Activity,
     val supportFragmentManager: FragmentManager,
-    val sharedPreferences: androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
+    val viewModel: MyOrdersRecyclerAdapterViewModel
 ) : FirestorePagingAdapter<Order, MyOrdersRecyclerAdapter.OrderItemViewHolder>(options) {
 
     class OrderItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-    val pickUpDeliveryCost = 0.0
-    val prePaidDeliveryCost =
-        sharedPreferences.getValueString(Constants.sharedPrefPaidDeliveryCost)?.toDouble()
-    val unPaidDeliveryCost =
-        sharedPreferences.getValueString(Constants.sharedPrefUnpaidDeliveryCost)?.toDouble()
+    val eachOrderFragment = EachOrderFragment()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderItemViewHolder {
         val view =
@@ -47,20 +46,24 @@ class MyOrdersRecyclerAdapter(
 
         val formatTotalPrice = NumberFormat.getCurrencyInstance(Locale.FRANCE)
             .format(model.totalPriceOfOrder())
-        val timeStampFormat = java.text.SimpleDateFormat("dd-MM-yyyy HH:mm")
         val timeStamp = holder.itemView.findViewById<TextView>(R.id.order_item_timestamp)
         val status = holder.itemView.findViewById<TextView>(R.id.order_item_status)
         val price = holder.itemView.findViewById<TextView>(R.id.order_item_price)
         val deliveryMethod = holder.itemView.findViewById<TextView>(R.id.order_item_delivery_method)
         val moreButton =
-            holder.itemView.findViewById<TextView>(R.id.order_item_more_button) // TODO OPEN FRAGMENT WITH THIS PARTICULAR ORDER :)
+            holder.itemView.findViewById<TextView>(R.id.order_item_more_button)
 
 
-        timeStamp.text = timeStampFormat.format(model.timestamp.toDate())
+        timeStamp.text = Constants.timeStampFormat.format(model.timestamp.toDate())
         status.text = model.orderStatus
         price.text = formatTotalPrice
         deliveryMethod.text = model.deliveryMethod
 
+
+        moreButton.setOnClickListener {
+            viewModel.setOrder(model) // SEND THIS MODEL TO VIEWMODEL IN ORDER TO PRESENT IT IN [EachOrderFragment]
+            openFragment(eachOrderFragment,EachOrderFragment.TAG,supportFragmentManager)
+        }
 
     }
 }

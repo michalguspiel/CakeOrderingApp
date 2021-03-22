@@ -9,6 +9,7 @@ import android.widget.TableRow
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.MiddleDividerItemDecoration.Companion.HORIZO
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.adapter.MyOrdersRecyclerAdapter
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.viewmodel.MyOrdersRecyclerAdapterViewModel
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.model.Order
 import com.erdees.cakeorderingapp.model.Products
@@ -53,15 +55,9 @@ class MyOrdersFragment : Fragment() {
          recyclerView = view.findViewById(R.id.my_orders_recycler_view)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val itemDecoration = DividerItemDecoration(requireContext(),DividerItemDecoration.VERTICAL)
-        //recyclerView.addItemDecoration(itemDecoration)
         /**Firebase*/
         val auth = Firebase.auth
         val db = Firebase.firestore
-        /**Shared Preferences*/
-        val sharedPreferences = SharedPreferences(requireContext())
-
-
 
         //THIS USER ACTIVE PLACED ORDERS
         val activeQuery = db.collection("placedOrders")
@@ -93,8 +89,11 @@ class MyOrdersFragment : Fragment() {
 
         activeTextView.setOnClickListener { activeChosen() }
         historyTextView.setOnClickListener { historyChosen() }
-        activeAdapter = MyOrdersRecyclerAdapter(activeOptions,requireActivity(),parentFragmentManager,sharedPreferences)
-        historyAdapter = MyOrdersRecyclerAdapter(historyOptions,requireActivity(),parentFragmentManager,sharedPreferences)
+
+        /**Adapters, two because of two query options*/
+        val viewModel = ViewModelProvider(this).get(MyOrdersRecyclerAdapterViewModel::class.java) // initialized here, cause need to pass it to each adapter
+        activeAdapter = MyOrdersRecyclerAdapter(activeOptions,requireActivity(),parentFragmentManager,viewModel)
+        historyAdapter = MyOrdersRecyclerAdapter(historyOptions,requireActivity(),parentFragmentManager,viewModel)
 
 
 
@@ -109,7 +108,6 @@ class MyOrdersFragment : Fragment() {
         historyTextView.setTextColor(standardTextColor)
         historyTableRow.isVisible = false
         recyclerView.adapter = activeAdapter
-        //TODO CHANGE ADAPTER
     }
 
     fun historyChosen() {
@@ -118,7 +116,6 @@ class MyOrdersFragment : Fragment() {
         historyTextView.setTextColor(resources.getColor(R.color.pink_500))
         historyTableRow.isVisible = true
         recyclerView.adapter = historyAdapter
-        //TODO CHANGE ADAPTER
     }
 
     companion object {

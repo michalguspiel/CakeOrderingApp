@@ -4,6 +4,8 @@ import android.transition.TransitionManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import java.text.NumberFormat
+import java.util.*
 import kotlin.random.Random
 
 fun randomizeTag():String{
@@ -33,6 +35,10 @@ fun randomizeTag():String{
             ft.addToBackStack(backStateName)
             ft.commit()
         }
+    }
+
+    fun formatNumber(number: Double) : String {
+      return  NumberFormat.getCurrencyInstance(Locale.FRANCE).format(number)
     }
 
 

@@ -15,6 +15,8 @@ class Constants {
 
         const val orderActive = "active"
         const val orderHistory = "completed"
+
+        val timeStampFormat =  java.text.SimpleDateFormat("dd-MM-yyyy HH:mm")
     }
 }
 
