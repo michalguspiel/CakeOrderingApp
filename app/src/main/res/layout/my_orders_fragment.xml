@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/linearLayout3"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:orientation="horizontal"
+        android:layout_gravity="center_horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -64,13 +66,57 @@
         </LinearLayout>
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/linearlayout4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/linearLayout3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:text="Date"
+            android:textSize="20sp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:text="Status"
+            android:textSize="20sp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:text="Value"
+            android:textSize="20sp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:text="Delivery method"
+            android:textSize="20sp"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#686868"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/my_orders_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:background="#CCCCCC"
+        android:clipToPadding="false"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+        app:layout_constraintTop_toBottomOf="@+id/linearlayout4" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

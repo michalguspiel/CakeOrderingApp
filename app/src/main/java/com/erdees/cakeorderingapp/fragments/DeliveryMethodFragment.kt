@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.stripe.FirebaseEphemeralKeyProvider
+import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.model.Order
 import com.erdees.cakeorderingapp.model.UserShoppingCart
@@ -176,17 +177,19 @@ class DeliveryMethodFragment : Fragment() {
                 userShoppingItems,
                 user.uid,
                 "Pickup",
+                0.0,
                 false,
                 Timestamp.now(),
                 Timestamp.now(), // TODO in future picking up date
                 userAddress,
-                "active",
+                Constants.orderActive,
                 0.0
             )
 
-            when { // FIRST CHANGING ORDER VALUES TO APPROPRIATE THEN SHOW CONFIRMATION DIALOG WHICH TRIGGERS INFORMATION DIALOG
+            when { // FIRST CHANGING ORDER VALUES TO APPROPRIATE THEN PLACING ORDER THEN  SHOW CONFIRMATION DIALOG WHICH TRIGGERS INFORMATION DIALOG
                 radioButtonPickup.isChecked -> {
                     orderToPlace.deliveryMethod = "Pickup"
+                    orderToPlace.deliveryPrice = 0.0
                     orderToPlace.paid = false
                     showDialogDoubleConfirmation(orderToPlace)
 
@@ -196,6 +199,7 @@ class DeliveryMethodFragment : Fragment() {
                         showAddressWarningDialog()
                         return@setOnClickListener
                     }
+                    orderToPlace.deliveryPrice = paidAtDeliveryCost
                     orderToPlace.deliveryMethod = "Delivery unpaid"
                     orderToPlace.paid = false
                     showDialogDoubleConfirmation(orderToPlace)
@@ -205,6 +209,7 @@ class DeliveryMethodFragment : Fragment() {
                         showAddressWarningDialog()
                         return@setOnClickListener
                     }
+                    orderToPlace.deliveryPrice = prePaidDeliveryCost
                     orderToPlace.deliveryMethod = "Delivery prepaid"
                     orderToPlace.paid = true
                     confirmPayment(selectedPaymentMethod.id!!, orderToPlace)

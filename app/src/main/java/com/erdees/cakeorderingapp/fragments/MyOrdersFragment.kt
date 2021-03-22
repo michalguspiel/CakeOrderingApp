@@ -10,8 +10,11 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.paging.PagedList
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.MiddleDividerItemDecoration.Companion.HORIZONTAL
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.adapter.MyOrdersRecyclerAdapter
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.model.Order
@@ -49,10 +52,13 @@ class MyOrdersFragment : Fragment() {
          recyclerView = view.findViewById(R.id.my_orders_recycler_view)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
+        val itemDecoration = DividerItemDecoration(requireContext(),DividerItemDecoration.VERTICAL)
+        //recyclerView.addItemDecoration(itemDecoration)
         /**Firebase*/
         val auth = Firebase.auth
         val db = Firebase.firestore
+        /**Shared Preferences*/
+        val sharedPreferences = SharedPreferences(requireContext())
 
 
 
@@ -60,11 +66,13 @@ class MyOrdersFragment : Fragment() {
         val activeQuery = db.collection("placedOrders")
             .whereEqualTo("userId",auth.uid)
             .whereEqualTo("orderStatus","active")
+            .orderBy("timestamp")
             .limit(10)
         //THIS USER HISTORY ORDERS
         val historyQuery = db.collection("placedOrders")
             .whereEqualTo("userId",auth.uid)
             .whereEqualTo("orderStatus","completed")
+            .orderBy("timestamp")
             .limit(10)
         val config = PagedList.Config.Builder()
             .setEnablePlaceholders(false)
@@ -84,8 +92,8 @@ class MyOrdersFragment : Fragment() {
 
         activeTextView.setOnClickListener { activeChosen() }
         historyTextView.setOnClickListener { historyChosen() }
-        activeAdapter = MyOrdersRecyclerAdapter(activeOptions,requireActivity(),parentFragmentManager)
-        historyAdapter = MyOrdersRecyclerAdapter(historyOptions,requireActivity(),parentFragmentManager)
+        activeAdapter = MyOrdersRecyclerAdapter(activeOptions,requireActivity(),parentFragmentManager,sharedPreferences)
+        historyAdapter = MyOrdersRecyclerAdapter(historyOptions,requireActivity(),parentFragmentManager,sharedPreferences)
 
 
 
