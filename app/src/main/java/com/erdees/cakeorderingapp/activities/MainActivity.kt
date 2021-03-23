@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
     private val productsFragment = ProductsFragment()
     private val myCartFragment = MyCartFragment()
     private val myOrdersFragment = MyOrdersFragment()
-
+    private val calendarFragment = CalendarFragment()
     /** If there are products in viewmodel product list
     set last product from list as main product(presented in eachProductFramgnet)
     then delete that from list
@@ -227,6 +227,8 @@ class MainActivity : AppCompatActivity() {
                     R.id.mi_settings -> {
                     }
                     R.id.mi_calendar -> {
+
+                        openFragment(calendarFragment,CalendarFragment.TAG,manager)
                     }
                     R.id.mi_products -> {
                         openFragment(productsFragment, ProductsFragment.TAG, manager)

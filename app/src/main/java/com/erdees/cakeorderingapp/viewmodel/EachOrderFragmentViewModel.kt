@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.dao.OrderDao
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.repository.OrderRepository
+import com.erdees.cakeorderingapp.database.Database
 import com.erdees.cakeorderingapp.model.Order
 
 class EachOrderFragmentViewModel(application: Application): AndroidViewModel(application) {
@@ -13,7 +14,7 @@ class EachOrderFragmentViewModel(application: Application): AndroidViewModel(app
     val orderRepository: OrderRepository
 
     init {
-        val orderDao = OrderDao()
+        val orderDao = Database.getInstance().orderDao
         orderRepository = OrderRepository(orderDao)
         getOrder = orderRepository.getOrder()
     }

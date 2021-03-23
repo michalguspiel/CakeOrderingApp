@@ -12,8 +12,10 @@
     <color name ="pink_500">#E91E63</color>
     <color name ="pink_700">#FFFF0057</color>
     <color name ="pink_900">#FFA50038</color>
-
+    <color name ="green_500">#05AF00</color>
+    <color name ="yellow_500">#FFEB3B</color>
     <color name ="gray">#FF454545</color>
+    <color name ="gray_100">#919191</color>
 
 
 </resources>

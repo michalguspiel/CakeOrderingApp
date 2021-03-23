@@ -31,7 +31,6 @@ class CartItemsRecyclerAdapter(
     /**Access to firebase and user here*/
     val auth = Firebase.auth
     val db = Firebase.firestore
-    val docRef = db.collection("userShoppingCart").document(auth.uid!!)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val view = LayoutInflater.from(activity).inflate(R.layout.cart_recycler_item, parent, false)
         return ItemViewHolder(view)
