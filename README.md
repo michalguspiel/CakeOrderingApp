@@ -19,6 +19,8 @@ I think app would look better if the pics were a bit more professional(right now
 ## Technologies used: 
 - Firebase
 - Stripe
+- Glide
+- MVVM pattern
 - Google authentication
 - Facebook authetication
 - Email Sign up and sign in
