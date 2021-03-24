@@ -1,5 +1,6 @@
 package com.erdees.cakeorderingapp.database
 
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.dao.CalendarDayDao
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.dao.OrderDao
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.dao.QueryDao
 import com.erdees.cakeorderingapp.dao.PriceDao
@@ -11,6 +12,7 @@ class Database private constructor(){
         var priceDao = PriceDao()
             var queryDao = QueryDao()
                 var orderDao = OrderDao()
+                    var calendarDayDao = CalendarDayDao()
             private set
 companion object {
 

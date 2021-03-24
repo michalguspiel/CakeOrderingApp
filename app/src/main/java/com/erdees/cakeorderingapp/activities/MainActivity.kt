@@ -22,7 +22,9 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
 import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
+import com.erdees.cakeorderingapp.checkIfContainSpecial
 import com.erdees.cakeorderingapp.fragments.*
+import com.erdees.cakeorderingapp.model.Order
 import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.openFragment
 import com.erdees.cakeorderingapp.viewmodel.MainActivityViewModel
@@ -32,10 +34,12 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.Stripe
+import java.time.LocalDate
 
 
 /**
@@ -56,6 +60,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var listOfProductsInBackStack: List<Products>
 
+    lateinit var groupedDateList: Map<LocalDate,List<LocalDate>>
+
+    lateinit var snapshotListener: ListenerRegistration
+
+
     private val myAccountFragment = MyAccountFragment()
     private val mainFragment = MainFragment()
     private val productsFragment = ProductsFragment()
@@ -75,6 +84,10 @@ class MainActivity : AppCompatActivity() {
     presented products in EachProductFragment
      */
     override fun onBackPressed() {
+        if(supportFragmentManager.findFragmentByTag("DeliveryMethodFragment")?.isVisible == true && viewModel.getDate.value != null){
+            viewModel.clearDate()
+            return
+        }
         if (sideNav.isVisible) {
             drawerLayout.closeDrawer(Gravity.RIGHT)
             return
@@ -107,6 +120,11 @@ class MainActivity : AppCompatActivity() {
         updateUI(currentUser)
     }
 
+    override fun onDestroy() {
+        snapshotListener.remove()
+        super.onDestroy()
+    }
+
     private fun updateUI(user: FirebaseUser?) {
         Log.i(TAG, "UPDATE UI CASTED")
         if (user == null) {
@@ -135,14 +153,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(TAG, "ON CREATE MAIN ACTIVITY CALLED")
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val db = Firebase.firestore
+
         /**Shared preferences,
          * whenever app starts
          * delivery pricing is downloaded from server and saved in shared preferences*/
         val sharedPreferences = SharedPreferences(this)
+
+
+        /**Get special orders dates
+         * If order doesnt contain special product return.
+         * Otherwise add date to  date count
+         *
+         * then group datelist by itself so from calendar day binder app can count size of each group
+         * and set color of day square accordingly. :)*/
+        val docRef = db.collection("placedOrders")
+        snapshotListener = docRef.addSnapshotListener { snapShot, error ->
+            if (error != null) {
+                Log.w("placedOrders", "Listen failed.", error)
+                return@addSnapshotListener
+            } else {
+                val dateList = mutableListOf<LocalDate>()
+                docRef.get().addOnSuccessListener { snap ->
+                snap?.toObjects(Order::class.java)?.forEach { order ->
+                    if (!order.checkIfContainSpecial()) { }
+                    else {
+                        val date = LocalDate.parse(order.orderToBeReadyDate)
+                        dateList.add(date)
+                    }
+                }
+
+                groupedDateList = dateList.groupBy { it }
+                    viewModel.cleanList()
+                    viewModel.setGroupedDateList(groupedDateList)
+            }
+
+            }
+    }
+
+
 
         /**Download correct delivery pricing from server
          * and save it in shared preferences*/

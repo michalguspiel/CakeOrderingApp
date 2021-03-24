@@ -2,7 +2,6 @@ package com.erdees.cakeorderingapp.fragments
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.net.sip.SipSession
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,13 +16,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.adapter.EachProductAdapter
+import com.erdees.cakeorderingapp.makeGone
 import com.erdees.cakeorderingapp.model.Products
-import com.erdees.cakeorderingapp.model.UserShoppingCart
+import com.erdees.cakeorderingapp.openFragment
 import com.erdees.cakeorderingapp.randomizeTag
 import com.erdees.cakeorderingapp.viewmodel.EachProductAdapterViewModel
 import com.erdees.cakeorderingapp.viewmodel.EachProductFragmentViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
@@ -37,6 +36,8 @@ import kotlin.collections.HashMap
 class EachProductFragment : Fragment() {
     private lateinit var model: Products
     private lateinit var snapshotListener : ListenerRegistration
+
+    private val calendarFragment = CalendarFragment()
 
     private lateinit var addToCartButton : Button
     override fun onCreateView(
@@ -94,6 +95,7 @@ class EachProductFragment : Fragment() {
         val ingredientList = view.findViewById<TextView>(R.id.each_product_ingredients)
         val recycler = view.findViewById<RecyclerView>(R.id.each_products_additional_recycler)
         val scrollView = view.findViewById<ScrollView>(R.id.each_product_scroll_view)
+        val specialCalendarButton = view.findViewById<Button>(R.id.each_product_special_calendar_button)
         addToCartButton = view.findViewById(R.id.each_product_add_to_cart_button)
         setUI(auth.currentUser != null)
 
@@ -108,6 +110,8 @@ class EachProductFragment : Fragment() {
                 .centerCrop()
                 .into(image)
 
+
+
             name.text = model.productName
             desc.text = model.productDesc
             price.text = NumberFormat.getCurrencyInstance(Locale.FRANCE).format(model.productPrice)
@@ -116,7 +120,12 @@ class EachProductFragment : Fragment() {
 
             waitingTime.text = when (model.productWaitTime) {
                 0L -> "Available same day in shop or to be delivered next day."
-                else -> "Available within ${model.productWaitTime} days."
+                else -> "Shortest waiting time for this product is ${model.productWaitTime} days."
+            }
+
+            if(!model.special) specialCalendarButton.makeGone()
+            specialCalendarButton.setOnClickListener {
+                openFragment(calendarFragment,CalendarFragment.TAG,parentFragmentManager)
             }
 
 
@@ -139,6 +148,7 @@ class EachProductFragment : Fragment() {
                 cartMap.put("productPrice",model.productPrice)
                 cartMap.put("quantity",numberPicker.value.toLong())
                 cartMap.put("productPictureUrl",model.productPictureUrl)
+                cartMap.put("special",model.special)
                     db.collection("userShoppingCart")
                         .document().set(cartMap, SetOptions.merge())
 

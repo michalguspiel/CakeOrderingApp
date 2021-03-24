@@ -14,7 +14,7 @@ data class Order(
     var deliveryPrice : Double = 0.0,
     var paid : Boolean = false,
     val timestamp: Timestamp = Timestamp.now(),
-    val orderToBeReadyDate: Timestamp = Timestamp.now(),
+    val orderToBeReadyDate: String = "",
     val userAddress: String = "",
     val orderStatus : String = "active",
     val discount : Double = 0.0,

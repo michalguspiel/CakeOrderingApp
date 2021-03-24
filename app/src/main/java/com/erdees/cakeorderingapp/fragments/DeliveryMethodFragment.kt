@@ -7,15 +7,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.Calendar.CalendarDayBinder
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.Calendar.CalendarMonthBinder
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.stripe.FirebaseEphemeralKeyProvider
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.viewmodel.CalendarDayBinderViewModel
 import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
+import com.erdees.cakeorderingapp.activities.MainActivity
+import com.erdees.cakeorderingapp.daysOfWeekFromLocale
 import com.erdees.cakeorderingapp.model.Order
 import com.erdees.cakeorderingapp.model.UserShoppingCart
 import com.erdees.cakeorderingapp.viewmodel.DeliveryMethodFragmentViewModel
@@ -33,7 +40,10 @@ import com.stripe.android.model.ConfirmPaymentIntentParams
 import com.stripe.android.model.PaymentMethod
 import com.stripe.android.view.BillingAddressFields
 import java.text.NumberFormat
+import java.time.LocalDate
+import java.time.YearMonth
 import java.util.*
+
 
 class DeliveryMethodFragment : Fragment() {
     private lateinit var user: FirebaseUser
@@ -55,14 +65,17 @@ class DeliveryMethodFragment : Fragment() {
     private lateinit var progressBar : ProgressBar
     private lateinit var loadingText : TextView
 
-    @SuppressLint("SetTextI18n")
+    private lateinit var viewModel: DeliveryMethodFragmentViewModel
+
+
+    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val view = inflater.inflate(R.layout.delivery_method_fragment, container, false)
-        val viewModel = ViewModelProvider(this).get(DeliveryMethodFragmentViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(DeliveryMethodFragmentViewModel::class.java)
 
         /**Firebase access*/
 
@@ -77,7 +90,7 @@ class DeliveryMethodFragment : Fragment() {
         /**ACCESS TO USER ADDRESS*/
         /**Get user address in order to prevent user from ordering products without providing address*/
 
-        var hasUserProvidedAddress: Boolean = false
+        var hasUserProvidedAddress = false
 
         db.collection("users").document(user.uid).get().addOnSuccessListener { snapshot ->
             val address = snapshot.get("address").toString()
@@ -102,13 +115,57 @@ class DeliveryMethodFragment : Fragment() {
 
 
 
+        /**Setup calendar*/
+        val calendar = view.findViewById<com.kizitonwose.calendarview.CalendarView>(R.id.delivery_method_calendar)
+        val daysOfWeek = daysOfWeekFromLocale()
+
+
+
+        /**Creating list of items
+         * then getting query of all of this user "userShoppingCarts"
+         * and saving it in value userShoppingItems
+         * in order to use it when placing order*/
+        val userShoppingItems: MutableList<UserShoppingCart> = mutableListOf()
+        var containsSpecials:Boolean = true // TODO FIX IT 
+        userCart = db.collection("userShoppingCart").whereEqualTo("userId", user.uid)
+        userCart.get().addOnSuccessListener { snapshot ->
+            snapshot.forEach { val itemAsObject = it.toObject<UserShoppingCart>()
+                userShoppingItems += itemAsObject
+                if(itemAsObject.special) containsSpecials = true // if at least one object is special set boolean accordingly
+            }
+
+        }
+
+
+        calendar.dayBinder = CalendarDayBinder(
+            requireContext(), resources, true, ViewModelProvider(
+                this
+            ).get(CalendarDayBinderViewModel::class.java),
+            viewLifecycleOwner,
+            containsSpecials
+        )
+        calendar.monthHeaderBinder = CalendarMonthBinder(daysOfWeek, resources)
+        val currentMonth = YearMonth.now()
+        val firstMonth = currentMonth.minusMonths(1)
+        val lastMonth = currentMonth.plusMonths(14)
+        calendar.setup(firstMonth, lastMonth, daysOfWeek.first())
+        calendar.scrollToMonth(currentMonth)
+
         /**Binders*/
         val costParenthesis      = view.findViewById<TextView>(R.id.delivery_method_cost_plus_delivery)
         val totalCost            = view.findViewById<TextView>(R.id.delivery_method_total_cost)
+        val pickedDateTextView   = view.findViewById<TextView>(R.id.delivery_picked_date_text)
         val radioGroup           = view.findViewById<RadioGroup>(R.id.delivery_method_group)
         val radioButtonPickup    = view.findViewById<RadioButton>(R.id.delivery_pickup)
         val radioButtonNotPaid   = view.findViewById<RadioButton>(R.id.delivery_elves_notpaid)
         val radioButtonPaid      = view.findViewById<RadioButton>(R.id.delivery_elves_upfront)
+
+        val scrollView           = view.findViewById<ScrollView>(R.id.delivery_scroll_view)
+        val disabledScroll = OnTouchListener(){ _: View?, _: MotionEvent? ->
+            return@OnTouchListener true
+        }
+        scrollView.setOnTouchListener(disabledScroll)
+
         confirmPurchaseButton    = view.findViewById<Button>(R.id.delivery_method_confirm_button)
         paymentMethodTextView    = view.findViewById(R.id.payment_method_text_view)
         progressBar              = view.findViewById(R.id.progress_bar)
@@ -119,16 +176,24 @@ class DeliveryMethodFragment : Fragment() {
 
         val cartCost = viewModel.getPrice.value!! // TO GET CART COST FROM VIEWMODEL & CART FRAGMENT
         paymentMethodTextView.visibility = View.GONE
-        /**Creating list of items
-         * then getting query of all of this user "userShoppingCarts"
-         * and saving it in value userShoppingItems
-         * in order to use it when placing order*/
-        val userShoppingItems: MutableList<UserShoppingCart> = mutableListOf()
-        userCart = db.collection("userShoppingCart").whereEqualTo("userId", user.uid)
-        userCart.get().addOnSuccessListener { snapshot ->
-            snapshot.forEach { userShoppingItems += it.toObject<UserShoppingCart>() }
-        }
-        userShoppingItems.forEach { Log.i(TAG, it.productName + it.quantity) }
+
+
+
+        /**Getting date picked by user from viewmodel and setting it as textview*/
+        var pickedDate: LocalDate? = null
+        viewModel.getDate.observe(viewLifecycleOwner, { date ->
+            if (date != null) {
+                scrollView.fullScroll(View.FOCUS_DOWN)
+                pickedDateTextView.text = date.toString()
+                pickedDate = date
+                Log.i(TAG, LocalDate.parse(pickedDate.toString()).toString())
+            }
+            else{ scrollView.fullScroll(View.FOCUS_UP)
+                pickedDateTextView.text = ""
+                pickedDate = null
+            }
+        })
+
 
 
         val radioListener = RadioGroup.OnCheckedChangeListener { group, checkedId ->
@@ -144,7 +209,6 @@ class DeliveryMethodFragment : Fragment() {
                 }
                 R.id.delivery_elves_notpaid -> {
                     paymentMethodTextView.visibility = View.GONE
-
                     confirmPurchaseButton.isEnabled = true
                     userShoppingItems.forEach { Log.i(TAG, it.productName + it.quantity) }
                     costToPay = cartCost + paidAtDeliveryCost
@@ -179,11 +243,12 @@ class DeliveryMethodFragment : Fragment() {
                 0.0,
                 false,
                 Timestamp.now(),
-                Timestamp.now(), // TODO in future picking up date
+                pickedDate.toString(),
                 userAddress,
                 Constants.orderActive,
                 0.0
             )
+
             when { // FIRST CHANGING ORDER VALUES TO APPROPRIATE THEN PLACING ORDER THEN  SHOW CONFIRMATION DIALOG WHICH TRIGGERS INFORMATION DIALOG
                 radioButtonPickup.isChecked -> {
                     orderToPlace.deliveryMethod = "Pickup"
@@ -289,6 +354,11 @@ class DeliveryMethodFragment : Fragment() {
         }
     }
 
+    fun cleanPickedDate(){
+        viewModel.cleanDate()
+
+    }
+
     /**INFORMATION DIALOG WHICH INFORMS IF ORDER WAS PLACED SUCCESFULLY
      * IN CASE PARAMETER BOOLEAN WAS TRUE SNAPSHOTLISTENER GETS REMOVED*/
     fun showDialog(deleteSnapshot: Boolean) {
@@ -312,12 +382,13 @@ class DeliveryMethodFragment : Fragment() {
         val dialog =   AlertDialog.Builder(requireContext())
         .setMessage("I order with an obligation to pay")
         .setPositiveButton("Proceed", null)
-        .setNegativeButton("Cancel",null)
+        .setNegativeButton("Cancel", null)
         .show()
 
         dialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener {
             placeOrder(order)
             cleanShoppingCart()
+            cleanPickedDate()
             showDialog(false)
             dialog.dismiss()
         }
@@ -327,7 +398,7 @@ class DeliveryMethodFragment : Fragment() {
     fun showAddressWarningDialog(){
         AlertDialog.Builder(requireContext())
             .setMessage("You must provide address for your account")
-            .setNegativeButton("Back",null)
+            .setNegativeButton("Back", null)
             .show()
     }
 
@@ -372,7 +443,7 @@ class DeliveryMethodFragment : Fragment() {
                         Log.d("payment", "Create paymentIntent returns $clientSecret")
                         clientSecret?.let {
                             stripe.confirmPayment(
-                                 this, ConfirmPaymentIntentParams.createWithPaymentMethodId(
+                                this, ConfirmPaymentIntentParams.createWithPaymentMethodId(
                                     paymentMethodId,
                                     (it as String)
                                 )
@@ -380,6 +451,7 @@ class DeliveryMethodFragment : Fragment() {
                             order.stripePaymentRef = snapshot.id
                             placeOrder(order)
                             cleanShoppingCart()
+                            cleanPickedDate()
                             stopLoading()
                             progressBar.visibility = View.GONE
                             showDialog(true)

@@ -10,7 +10,7 @@ data class Products(
     val productPrice: Double = 0.0,
     val productPictureUrl: String = "",
     val productIngredients: List<String> = listOf(),
-    val productWaitTime: Long = 0
-
+    val productWaitTime: Long = 0,
+    val special: Boolean = false
 ) {
 }

@@ -42,7 +42,7 @@ class EachOrderFragment : Fragment() {
             /**Set data according to model*/
             timeStamp.text = Constants.timeStampFormat.format(orderToPresent.timestamp.toDate())
             deliveryMethod.text ="Delivery method: " + orderToPresent.deliveryMethod
-            deliveryTime.text = "Order delivery time : 15-03-2020" // TODO Implement actuall functionallity
+            deliveryTime.text = setWhenReady(orderToPresent.deliveryMethod,orderToPresent.orderToBeReadyDate)
             deliveryCost.text = formatNumber(orderToPresent.deliveryPrice)
             deliveryAddress.text = setOrderAddress(orderToPresent.userAddress,orderToPresent.deliveryMethod)
             basketCost.text = formatNumber(orderToPresent.priceOfShoppingCart)
@@ -65,6 +65,13 @@ class EachOrderFragment : Fragment() {
             else ->"Delivery address: " + address
         }
 
+    }
+
+    fun setWhenReady(deliveryMethod: String,readyDate:String):String {
+        return when(deliveryMethod) {
+            "Pickup" -> "Ready to pickup: $readyDate"
+            else -> "Delivery date: $readyDate"
+        }
     }
 
 

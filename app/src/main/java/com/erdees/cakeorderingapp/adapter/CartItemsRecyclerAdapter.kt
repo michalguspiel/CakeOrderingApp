@@ -46,7 +46,8 @@ class CartItemsRecyclerAdapter(
             model.productName,
             model.productPrice,
             newQuantity,
-            model.productPictureUrl
+            model.productPictureUrl,
+            model.special
         )
         val newDocAsMap = newDocument.toMap()
         ref.update(newDocAsMap)

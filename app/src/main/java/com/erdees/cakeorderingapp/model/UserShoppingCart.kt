@@ -11,7 +11,8 @@ data class UserShoppingCart(
     val productName : String = "",
     val productPrice : Double = 0.0,
     val quantity : Long = 0,
-    val productPictureUrl :String = ""
+    val productPictureUrl :String = "",
+    val special : Boolean = false
 
 ){
     @Exclude
@@ -23,6 +24,7 @@ data class UserShoppingCart(
             "productPrice" to productPrice,
             "quantity" to quantity,
             "productPictureUrl" to productPictureUrl,
+            "isSpecial" to special
         )
     }
 
