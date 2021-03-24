@@ -126,14 +126,18 @@ class DeliveryMethodFragment : Fragment() {
          * and saving it in value userShoppingItems
          * in order to use it when placing order*/
         val userShoppingItems: MutableList<UserShoppingCart> = mutableListOf()
-        var containsSpecials:Boolean = true // TODO FIX IT 
         userCart = db.collection("userShoppingCart").whereEqualTo("userId", user.uid)
+        var containsSpecials:Boolean = false
         userCart.get().addOnSuccessListener { snapshot ->
             snapshot.forEach { val itemAsObject = it.toObject<UserShoppingCart>()
                 userShoppingItems += itemAsObject
-                if(itemAsObject.special) containsSpecials = true // if at least one object is special set boolean accordingly
+                Log.i(TAG,containsSpecials.toString())
+                if(itemAsObject.special){
+                    containsSpecials = true
+                    Log.i(TAG,containsSpecials.toString())
+                } // if at least one object is special set boolean accordingly
             }
-
+            viewModel.setBoolean(containsSpecials) // sends date to viewModel if there's special product in this order.
         }
 
 
@@ -141,8 +145,7 @@ class DeliveryMethodFragment : Fragment() {
             requireContext(), resources, true, ViewModelProvider(
                 this
             ).get(CalendarDayBinderViewModel::class.java),
-            viewLifecycleOwner,
-            containsSpecials
+            viewLifecycleOwner
         )
         calendar.monthHeaderBinder = CalendarMonthBinder(daysOfWeek, resources)
         val currentMonth = YearMonth.now()

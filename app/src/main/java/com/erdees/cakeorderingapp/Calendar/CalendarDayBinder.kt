@@ -21,7 +21,7 @@ import com.kizitonwose.calendarview.model.DayOwner
 import com.kizitonwose.calendarview.ui.DayBinder
 import java.time.LocalDate
 
-class CalendarDayBinder(val context: Context, val resources: Resources,val isSelectable: Boolean, val viewModel: CalendarDayBinderViewModel,val viewLifeCycleOwner: LifecycleOwner,val containsSpecials: Boolean): DayBinder<DayViewContainer> {
+class CalendarDayBinder(val context: Context, val resources: Resources,val isSelectable: Boolean, val viewModel: CalendarDayBinderViewModel,val viewLifeCycleOwner: LifecycleOwner): DayBinder<DayViewContainer> {
 
     private val today = LocalDate.now()
 
@@ -93,15 +93,22 @@ class CalendarDayBinder(val context: Context, val resources: Resources,val isSel
              *
              *
              * */
-
+            viewModel.isSpecial().observe(viewLifeCycleOwner, Observer {  containsSpecials ->
+                Log.i("CalendarDayBinder",containsSpecials.toString())
             if (isSelectable &&
                 (color == "green" || color == "yellow" || !containsSpecials!!) &&
-                !day.date.isBefore(today.plusDays(4)) || !containsSpecials && !day.date.isBefore(today)) {
+                (!day.date.isBefore(today.plusDays(4)) || !containsSpecials) &&
+                !day.date.isBefore(today)) {
+                    Log.i("TEST" ,"ContainsSpecials : " + containsSpecials)
                 container.view.setOnClickListener {
                     viewModel?.setDate(day.date)
                 }
             }
+                else {
+                    container.view.setOnClickListener {  }
+                }
 
         })
-    }
+    })
+}
 }

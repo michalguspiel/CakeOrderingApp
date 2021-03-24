@@ -17,4 +17,11 @@ class CalendarDayRepository(val dao: CalendarDayDao) {
     fun setGroupedList(groupToSet : Map<LocalDate,List<LocalDate>> ) = dao.setGroupedDateList(groupToSet)
 
     fun cleanList() = dao.cleanList()
+
+
+    /**Booleans
+     * */
+    fun setBoolean(boolean: Boolean) = dao.setBoolean(boolean)
+
+    fun getBoolean() = dao.getBoolean()
 }

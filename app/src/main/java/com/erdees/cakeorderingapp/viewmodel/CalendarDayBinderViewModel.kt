@@ -22,4 +22,8 @@ class CalendarDayBinderViewModel(application: Application): AndroidViewModel(app
     fun setDate(dateToSet : LocalDate) = calendarDayRepository.setdate(dateToSet)
 
     fun getGroupedDateList() = calendarDayRepository.getGroupedList()
+
+
+    /**Get boolean which decides if order is special*/
+    fun isSpecial() = calendarDayRepository.getBoolean()
 }

@@ -37,7 +37,7 @@ class CalendarFragment: Fragment() {
         val viewModel = ViewModelProvider(this).get(CalendarFragmentViewModel::class.java)
 
 
-        calendar.dayBinder = CalendarDayBinder(requireContext(),resources,false,ViewModelProvider(this).get(CalendarDayBinderViewModel::class.java),viewLifecycleOwner,false)
+        calendar.dayBinder = CalendarDayBinder(requireContext(),resources,false,ViewModelProvider(this).get(CalendarDayBinderViewModel::class.java),viewLifecycleOwner)
         calendar.monthHeaderBinder = CalendarMonthBinder(daysOfWeek,resources)
 
         val currentMonth = YearMonth.now()
