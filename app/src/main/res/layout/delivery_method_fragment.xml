@@ -75,6 +75,46 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="2021-03-28" />
 
+            <TextView
+                android:id="@+id/delivery_address_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/delivery_method_group"
+                tools:text="Os. Teatralne 27/1 31-947 Krakow" />
+
+            <TextView
+                android:id="@+id/delivery_change_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/com_facebook_blue"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delivery_address_text"
+                android:visibility="gone"
+                android:text="Different address?" />
+
+            <TextView
+                android:id="@+id/delivery_use_home_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/com_facebook_blue"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delivery_address_text"
+                android:visibility="gone"
+                android:text="Use home address" />
+
+
             <RadioGroup
                 android:id="@+id/delivery_method_group"
                 android:layout_width="wrap_content"
@@ -112,7 +152,6 @@
                 android:id="@+id/delivery_method_total_cost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:textSize="22sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -144,15 +183,13 @@
                 android:id="@+id/payment_method_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="40dp"
+                android:layout_marginBottom="60dp"
                 android:drawableStart="@drawable/ic_baseline_credit_card_24"
                 android:drawableTint="?android:textColorPrimary"
                 android:textAppearance="@android:style/TextAppearance"
-
+                app:layout_constraintBottom_toTopOf="@+id/delivery_method_confirm_button"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/delivery_method_group"
                 tools:text="Select payment method" />
 
             <ProgressBar

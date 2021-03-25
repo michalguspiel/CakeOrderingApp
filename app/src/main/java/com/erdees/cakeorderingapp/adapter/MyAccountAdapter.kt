@@ -89,9 +89,7 @@ class MyAccountAdapter(val user: FirebaseUser,val activity: Activity, val parent
                         return@setOnClickListener
                     } // to prevent crashes
                     editAddressDialog.show(
-                        parentFragmentManager.beginTransaction(),
-                        EditAddressDialog.TAG
-                    )
+                        parentFragmentManager.beginTransaction(),"MyAccountAdapter")
                 }
 
             }

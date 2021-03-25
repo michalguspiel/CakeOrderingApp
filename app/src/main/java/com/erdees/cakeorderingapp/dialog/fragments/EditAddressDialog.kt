@@ -11,6 +11,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.viewmodel.EditAddressDialogViewModel
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.adapter.MyAccountAdapter
 import com.erdees.cakeorderingapp.fragments.MyAccountFragment
@@ -43,28 +45,44 @@ class EditAddressDialog : DialogFragment() {
         val cancelButton = view.findViewById<Button>(R.id.edit_address_button_cancel)
         val submitButton = view.findViewById<Button>(R.id.edit_address_button_submit)
 
+        if(this.tag == "DeliveryMethodFragment"){
 
-        val docRef = db.collection("users").document(user.uid)
-        docRef.get().addOnSuccessListener {
-            addressTextField.setText(it["address"].toString())
-            addressTextField2.setText(it["address2"].toString())
-            postCodeTextField.setText(it["postCode"].toString())
-            cityTextField.setText(it["city"].toString())
+            val viewModel = ViewModelProvider(this).get(EditAddressDialogViewModel::class.java)
+            submitButton.setOnClickListener {
+              val address: String =  addressTextField.text.toString() +
+                             " " + addressTextField2.text.toString() +
+                            " " + postCodeTextField.text.toString() +
+                                " " + cityTextField.text.toString()
+                viewModel.setAddress(address)
+                this.dismiss()
+            }
+
+
         }
 
 
-        submitButton.setOnClickListener {
-            docRef
-                .update(
-                    "address", addressTextField.text.toString(),
-                    "address2",addressTextField2.text.toString(),
-                    "postCode", postCodeTextField.text.toString(),
-                    "city", cityTextField.text.toString()
-                )
-            Toast.makeText(requireContext(), "Updated address", Toast.LENGTH_SHORT).show()
-            this.dismiss()
-        }
 
+        else {
+            val docRef = db.collection("users").document(user.uid)
+            docRef.get().addOnSuccessListener {
+                addressTextField.setText(it["address"].toString())
+                addressTextField2.setText(it["address2"].toString())
+                postCodeTextField.setText(it["postCode"].toString())
+                cityTextField.setText(it["city"].toString())
+            }
+
+            submitButton.setOnClickListener {
+                docRef
+                    .update(
+                        "address", addressTextField.text.toString(),
+                        "address2", addressTextField2.text.toString(),
+                        "postCode", postCodeTextField.text.toString(),
+                        "city", cityTextField.text.toString()
+                    )
+                Toast.makeText(requireContext(), "Updated address", Toast.LENGTH_SHORT).show()
+                this.dismiss()
+            }
+        }
         cancelButton.setOnClickListener { this.dismiss() }
 
         dialog?.window?.setBackgroundDrawable(ColorDrawable(TRANSPARENT))

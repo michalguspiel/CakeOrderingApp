@@ -15,7 +15,7 @@ data class Order(
     var paid : Boolean = false,
     val timestamp: Timestamp = Timestamp.now(),
     val orderToBeReadyDate: String = "",
-    val userAddress: String = "",
+    var userAddress: String = "",
     val orderStatus : String = "active",
     val discount : Double = 0.0,
     val specialCount : Long = 0,

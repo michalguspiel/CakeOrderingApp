@@ -21,9 +21,9 @@ import androidx.recyclerview.widget.com.erdees.cakeorderingapp.Calendar.Calendar
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.stripe.FirebaseEphemeralKeyProvider
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.viewmodel.CalendarDayBinderViewModel
-import com.erdees.cakeorderingapp.Constants
+import com.erdees.cakeorderingapp.*
 import com.erdees.cakeorderingapp.R
-import com.erdees.cakeorderingapp.daysOfWeekFromLocale
+import com.erdees.cakeorderingapp.dialog.fragments.EditAddressDialog
 import com.erdees.cakeorderingapp.model.Order
 import com.erdees.cakeorderingapp.model.UserShoppingCart
 import com.erdees.cakeorderingapp.viewmodel.DeliveryMethodFragmentViewModel
@@ -67,11 +67,11 @@ class DeliveryMethodFragment : Fragment() {
     private lateinit var paymentMethodTextView: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var loadingText: TextView
-
     private lateinit var viewModel: DeliveryMethodFragmentViewModel
 
 
-    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
+    private val changeAddressDialog = EditAddressDialog()
+        @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -90,6 +90,7 @@ class DeliveryMethodFragment : Fragment() {
         setupPaymentSession()
 
         var userAddress = ""
+            var userAnotherAddress = ""
         /**ACCESS TO USER ADDRESS*/
         /**Get user address in order to prevent user from ordering products without providing address*/
 
@@ -166,7 +167,9 @@ class DeliveryMethodFragment : Fragment() {
         val radioButtonPaid = view.findViewById<RadioButton>(R.id.delivery_elves_upfront)
         val scrollView = view.findViewById<ScrollView>(R.id.delivery_scroll_view)
         val pickedDateInfoText = view.findViewById<TextView>(R.id.delivery_picked_date_information)
-
+        val addressTextView = view.findViewById<TextView>(R.id.delivery_address_text)
+        val changeAddressButton = view.findViewById<TextView>(R.id.delivery_change_address)
+        val useHomeAddressButton = view.findViewById<TextView>(R.id.delivery_use_home_address)
 
         /**Getting screen width and height and then set calendarHolderLayout as it
          * so when user picks date for order screen gets full scroll and shows exacly what's expected on every device*/
@@ -224,13 +227,12 @@ class DeliveryMethodFragment : Fragment() {
             } else pickedDateInfoText.text = ""
         })
 
-
         /**Getting date picked by user from viewmodel and setting it as textview*/
         var pickedDate: LocalDate? = null
         viewModel.getDate.observe(viewLifecycleOwner, { date ->
             if (date != null) {
                 scrollView.fullScroll(View.FOCUS_DOWN)
-                pickedDateTextView.text = date.toString()
+                pickedDateTextView.text = "Order for: $date."
                 pickedDate = date
                 Log.i(TAG, LocalDate.parse(pickedDate.toString()).toString())
             } else {
@@ -240,30 +242,71 @@ class DeliveryMethodFragment : Fragment() {
             }
         })
 
+        /**Get address from viewModel
+         * in case user want to place order for not his address.*/
+        viewModel.getAddress.observe(viewLifecycleOwner, { address ->
+            if (address.isNullOrBlank()){
+                userAnotherAddress = ""
+            }
+            else if (!address.isNullOrBlank()) {
+                userAnotherAddress = address
+            }
+            if(userAnotherAddress.isNullOrBlank()) {
+                addressTextView.text = setAddress(userAddress)
+                changeAddressButton.makeVisible()
+                useHomeAddressButton.makeGone()
+            }
+            else {
+                addressTextView.text = setAddress(userAnotherAddress)
+                changeAddressButton.makeGone()
+                useHomeAddressButton.makeVisible()
+            }
+        })
+
 
         val radioListener = RadioGroup.OnCheckedChangeListener { group, checkedId ->
-
             when (checkedId) {
                 R.id.delivery_pickup -> {
-                    paymentMethodTextView.visibility = View.GONE
+                    paymentMethodTextView.makeGone()
+                    addressTextView.makeInvisible()
+                    changeAddressButton.makeGone()
+                    useHomeAddressButton.makeGone()
                     confirmPurchaseButton.isEnabled = true
                     costToPay = cartCost
                     totalCost.text = format(costToPay)
                     costParenthesis.text = ""
-                    Toast.makeText(requireContext(), "pickup", Toast.LENGTH_SHORT).show()
                 }
                 R.id.delivery_elves_notpaid -> {
-                    paymentMethodTextView.visibility = View.GONE
+                    addressTextView.makeVisible()
+                    if(userAnotherAddress.isNullOrBlank()){
+                        addressTextView.text = setAddress(userAddress)
+                        changeAddressButton.makeVisible()
+                        useHomeAddressButton.makeGone()
+                    } else {
+                        addressTextView.text = setAddress(userAnotherAddress)
+                        changeAddressButton.makeGone()
+                        useHomeAddressButton.makeVisible()
+                    }
+                    paymentMethodTextView.makeGone()
                     confirmPurchaseButton.isEnabled = true
                     userShoppingItems.forEach { Log.i(TAG, it.productName + it.quantity) }
                     costToPay = cartCost + paidAtDeliveryCost
                     totalCost.text = format(costToPay)
                     costParenthesis.text = "(${format(cartCost)} + ${format(paidAtDeliveryCost)})"
-                    Toast.makeText(requireContext(), "notpaid", Toast.LENGTH_SHORT).show()
                 }
                 R.id.delivery_elves_upfront -> {
+                    addressTextView.makeVisible()
+                    if(userAnotherAddress.isNullOrBlank()){
+                        addressTextView.text = setAddress(userAddress)
+                        changeAddressButton.makeVisible()
+                        useHomeAddressButton.makeGone()
+                    } else {
+                        addressTextView.text = setAddress(userAnotherAddress)
+                        changeAddressButton.makeGone()
+                        useHomeAddressButton.makeVisible()
+                    }
                     costToPay = cartCost + prePaidDeliveryCost
-                    paymentMethodTextView.visibility = View.VISIBLE
+                    paymentMethodTextView.makeVisible()
                     confirmPurchaseButton.isEnabled = false
 
                     setupPaymentSession()
@@ -280,7 +323,22 @@ class DeliveryMethodFragment : Fragment() {
         radioGroup.check(R.id.delivery_pickup) // to start with first button checked
 
 
+        changeAddressButton.setOnClickListener {
+            changeAddressDialog.show(parentFragmentManager, TAG)
+        }
+
+         useHomeAddressButton.setOnClickListener {
+             viewModel.setAddress("")
+             useHomeAddressButton.makeGone()
+             changeAddressButton.makeVisible()
+         }
+
+
+
+
         confirmPurchaseButton.setOnClickListener {
+
+
             val orderToPlace: Order = Order(
                 userShoppingItems,
                 user.uid,
@@ -292,9 +350,9 @@ class DeliveryMethodFragment : Fragment() {
                 userAddress,
                 Constants.orderActive,
                 0.0,
-                specialCount // check with 1 if triggers cloud functions bye bye Count how many special appears in order and put it here
+                specialCount
             )
-
+            if (userAnotherAddress.isNotBlank()) orderToPlace.userAddress = userAnotherAddress
 
             when { // FIRST CHANGING ORDER VALUES TO APPROPRIATE THEN PLACING ORDER THEN  SHOW CONFIRMATION DIALOG WHICH TRIGGERS INFORMATION DIALOG
                 radioButtonPickup.isChecked -> {
@@ -323,7 +381,6 @@ class DeliveryMethodFragment : Fragment() {
                     orderToPlace.deliveryMethod = "Delivery prepaid"
                     orderToPlace.paid = true
                     confirmPayment(selectedPaymentMethod.id!!, orderToPlace)
-
                 }
             }
 
@@ -334,7 +391,9 @@ class DeliveryMethodFragment : Fragment() {
 
 
         setupPaymentSession()
-        return view
+            radioGroup.check(R.id.delivery_pickup) // to start with first button checked
+
+            return view
     }
 
     private fun setupPaymentSession() {
@@ -388,7 +447,15 @@ class DeliveryMethodFragment : Fragment() {
 
     }
 
+
+
     /**FUNCTIONS PLACE ORDER AND DELETE EVERY ITEM FROM USERSHOPPINGCART*/
+
+    fun setAddress(address: String?):String{
+        return if(address.isNullOrBlank()) "You haven't provided address in your profile."
+        else "Delivery address: $address."
+    }
+
     fun placeOrder(order: Order) {
         db.collection("placedOrders").document().set(order)
     }
@@ -499,6 +566,7 @@ class DeliveryMethodFragment : Fragment() {
                             placeOrder(order)
                             cleanShoppingCart()
                             cleanPickedDate()
+                            viewModel.cleanDate()
                             stopLoading()
                             progressBar.visibility = View.GONE
                             showDialog(true)
