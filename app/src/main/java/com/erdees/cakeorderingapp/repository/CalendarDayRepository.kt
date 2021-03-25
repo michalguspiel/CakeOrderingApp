@@ -14,14 +14,14 @@ class CalendarDayRepository(val dao: CalendarDayDao) {
 
     fun getGroupedList() = dao.getGroupDateList()
 
-    fun setGroupedList(groupToSet : Map<LocalDate,List<LocalDate>> ) = dao.setGroupedDateList(groupToSet)
+    fun setGroupedList(groupToSet: Map<LocalDate, List<LocalDate>>) =
+        dao.setGroupedDateList(groupToSet)
 
     fun cleanList() = dao.cleanList()
 
+    fun setSpecialCount(number: Long) = dao.setSpecialCount(number)
 
-    /**Booleans
-     * */
-    fun setBoolean(boolean: Boolean) = dao.setBoolean(boolean)
+    fun getSpecialCount() = dao.getSpecialCount()
 
-    fun getBoolean() = dao.getBoolean()
+
 }

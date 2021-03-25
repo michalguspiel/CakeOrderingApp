@@ -20,8 +20,6 @@ import java.util.*
 
 class CalendarFragment: Fragment() {
 
-    private val today = LocalDate.now()
-    private val monthTitleFormatter = DateTimeFormatter.ofPattern("MMMM")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,15 +32,12 @@ class CalendarFragment: Fragment() {
         val calendar = view.findViewById<com.kizitonwose.calendarview.CalendarView>(R.id.delivery_method_calendar)
         val daysOfWeek = daysOfWeekFromLocale()
 
-        val viewModel = ViewModelProvider(this).get(CalendarFragmentViewModel::class.java)
-
-
         calendar.dayBinder = CalendarDayBinder(requireContext(),resources,false,ViewModelProvider(this).get(CalendarDayBinderViewModel::class.java),viewLifecycleOwner)
         calendar.monthHeaderBinder = CalendarMonthBinder(daysOfWeek,resources)
 
         val currentMonth = YearMonth.now()
         val firstMonth = currentMonth.minusMonths(1)
-        val lastMonth = currentMonth.plusMonths(14)
+        val lastMonth = currentMonth.plusMonths(6)// no need to make it more that half an year upfront
         calendar.setup(firstMonth, lastMonth, daysOfWeek.first())
         calendar.scrollToMonth(currentMonth)
 

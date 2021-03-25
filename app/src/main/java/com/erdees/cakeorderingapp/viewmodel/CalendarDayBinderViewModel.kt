@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 class CalendarDayBinderViewModel(application: Application): AndroidViewModel(application) {
 
-    private val calendarDayRepository : CalendarDayRepository
+    private val calendarDayRepository: CalendarDayRepository
     private val getDate: LiveData<LocalDate>
 
     init {
@@ -19,11 +19,10 @@ class CalendarDayBinderViewModel(application: Application): AndroidViewModel(app
         getDate = calendarDayRepository.getDate()
     }
 
-    fun setDate(dateToSet : LocalDate) = calendarDayRepository.setdate(dateToSet)
+    fun setDate(dateToSet: LocalDate) = calendarDayRepository.setdate(dateToSet)
 
     fun getGroupedDateList() = calendarDayRepository.getGroupedList()
 
+    fun getSpecialCount() = calendarDayRepository.getSpecialCount()
 
-    /**Get boolean which decides if order is special*/
-    fun isSpecial() = calendarDayRepository.getBoolean()
 }

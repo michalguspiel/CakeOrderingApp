@@ -8,6 +8,8 @@ class Constants {
         const val prePaidCost = "prePaidDelivery"
         const val paidAtDeliveryCost = "paidAtDelivery"
 
+        const val waitTime = "waitTime"
+
         //data about cost of delivery prices which is stored in shared preferences
         // and updated in Main Activity onCreate
         const val sharedPrefPaidDeliveryCost = "prePaidCost"
@@ -17,6 +19,8 @@ class Constants {
         const val orderHistory = "completed"
 
         val timeStampFormat =  java.text.SimpleDateFormat("dd-MM-yyyy HH:mm")
+
+
     }
 }
 

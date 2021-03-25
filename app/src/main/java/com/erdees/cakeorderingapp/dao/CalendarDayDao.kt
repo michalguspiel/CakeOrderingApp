@@ -13,13 +13,17 @@ class CalendarDayDao {
     private var groupedDateList : Map<LocalDate,List<LocalDate>> = mapOf()
     private val groupedDateListLive = MutableLiveData<Map<LocalDate,List<LocalDate>>>()
 
-    private var containsSpecial : Boolean = false
-    private val containsSpecialLive = MutableLiveData<Boolean>()
+    /**Special count which informs calendar how many specials user is trying to order
+     * I decided to set it inside calendar day dao because it has direct effect on calendar
+     * and there's no point of making another dao*/
+    private var specialCount: Long = 0L
+    private val specialCountLive =  MutableLiveData<Long>()
+
 
     init {
         dateLive.value = date
         groupedDateListLive.value = groupedDateList
-        containsSpecialLive.value = containsSpecial
+        specialCountLive.value = specialCount
     }
 
     fun setDate(dateToSet: LocalDate){
@@ -46,15 +50,12 @@ class CalendarDayDao {
         groupedDateListLive.value = groupedDateList
     }
 
-
-    /**Boolean which decides if order has special pastry or no,
-     * I decided to set it inside calendar day dao because it has direct effect on calendar
-     * and there's no point of making another dao*/
-    fun setBoolean(boolean: Boolean) {
-        containsSpecial = boolean
-        containsSpecialLive.value = containsSpecial
+    fun setSpecialCount(number: Long){
+        specialCount = number
+        specialCountLive.value = specialCount
     }
 
-    fun getBoolean() = containsSpecialLive as LiveData<Boolean>
+    fun getSpecialCount() = specialCountLive as LiveData<Long>
+
 
 }

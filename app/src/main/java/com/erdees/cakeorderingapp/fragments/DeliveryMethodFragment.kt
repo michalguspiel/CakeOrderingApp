@@ -106,38 +106,33 @@ class DeliveryMethodFragment : Fragment() {
             userAddress = list.joinToString(" ") { it }
         }
 
-
         /**Get delivery prices from shared preferences
          * */
         val sharedPreferences = SharedPreferences(requireContext())
         val prePaidDeliveryCost = sharedPreferences.getValueString("prePaidCost")!!.toDouble()
         val paidAtDeliveryCost = sharedPreferences.getValueString("paidAtDeliveryCost")!!.toDouble()
 
-
-
         /**Setup calendar*/
         val calendar = view.findViewById<com.kizitonwose.calendarview.CalendarView>(R.id.delivery_method_calendar)
         val daysOfWeek = daysOfWeekFromLocale()
 
-
-
         /**Creating list of items
          * then getting query of all of this user "userShoppingCarts"
          * and saving it in value userShoppingItems
-         * in order to use it when placing order*/
+         * in order to use it when placing order
+         *
+         * Also check if each object is special, if so add quantity to specialCount in order to create a booking*/
+        var specialCount = 0L
         val userShoppingItems: MutableList<UserShoppingCart> = mutableListOf()
         userCart = db.collection("userShoppingCart").whereEqualTo("userId", user.uid)
-        var containsSpecials:Boolean = false
         userCart.get().addOnSuccessListener { snapshot ->
             snapshot.forEach { val itemAsObject = it.toObject<UserShoppingCart>()
                 userShoppingItems += itemAsObject
-                Log.i(TAG,containsSpecials.toString())
                 if(itemAsObject.special){
-                    containsSpecials = true
-                    Log.i(TAG,containsSpecials.toString())
-                } // if at least one object is special set boolean accordingly
+                    specialCount += itemAsObject.quantity
+                }
             }
-            viewModel.setBoolean(containsSpecials) // sends date to viewModel if there's special product in this order.
+            viewModel.setSpecialCount(specialCount)
         }
 
 
@@ -150,7 +145,7 @@ class DeliveryMethodFragment : Fragment() {
         calendar.monthHeaderBinder = CalendarMonthBinder(daysOfWeek, resources)
         val currentMonth = YearMonth.now()
         val firstMonth = currentMonth.minusMonths(1)
-        val lastMonth = currentMonth.plusMonths(14)
+        val lastMonth = currentMonth.plusMonths(6) // no need to make it more that half an year upfront
         calendar.setup(firstMonth, lastMonth, daysOfWeek.first())
         calendar.scrollToMonth(currentMonth)
 
@@ -249,8 +244,11 @@ class DeliveryMethodFragment : Fragment() {
                 pickedDate.toString(),
                 userAddress,
                 Constants.orderActive,
-                0.0
+                0.0,
+                specialCount // check with 1 if triggers cloud functions bye bye Count how many special appears in order and put it here
             )
+
+            Log.i(TAG,"special count: " + specialCount.toString())
 
             when { // FIRST CHANGING ORDER VALUES TO APPROPRIATE THEN PLACING ORDER THEN  SHOW CONFIRMATION DIALOG WHICH TRIGGERS INFORMATION DIALOG
                 radioButtonPickup.isChecked -> {

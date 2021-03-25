@@ -9,6 +9,12 @@ class ProductDao {
     private var product: Products? = null
     private val productLive  = MutableLiveData<Products>()
 
+
+    /**Product list is a inside backStackList of presented products in eachProductFragment,
+     * when user opens suggested product from bottom recycler view
+     * just chosen products is set to above productLive and previous product is set as a last one in productListLive.
+     *
+     * Then when back button is pressed last product from productListLive is set as above productLive and then erased from list.*/
     private var productList: MutableList<Products> = mutableListOf()
     private var productListLive = MutableLiveData<List<Products>>()
 

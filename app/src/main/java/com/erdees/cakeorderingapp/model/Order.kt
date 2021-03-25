@@ -18,6 +18,7 @@ data class Order(
     val userAddress: String = "",
     val orderStatus : String = "active",
     val discount : Double = 0.0,
+    val specialCount : Long = 0,
     var stripePaymentRef : String = ""
 ) {
     val priceOfShoppingCart = userShoppingCart.map { it.productPrice * it.quantity }.sum()

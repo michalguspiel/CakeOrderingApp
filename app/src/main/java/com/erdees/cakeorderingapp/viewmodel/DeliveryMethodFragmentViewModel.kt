@@ -28,7 +28,7 @@ class DeliveryMethodFragmentViewModel(application: Application): AndroidViewMode
 
     fun cleanDate() = calendarDayRepository.clearDate()
 
-    fun getGroupedDateList() = calendarDayRepository.getGroupedList()
+    fun setSpecialCount(number: Long) = calendarDayRepository.setSpecialCount(number)
 
-    fun setBoolean(boolean: Boolean) = calendarDayRepository.setBoolean(boolean)
+
 }

@@ -85,8 +85,8 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onBackPressed() {
         if(supportFragmentManager.findFragmentByTag("DeliveryMethodFragment")?.isVisible == true && viewModel.getDate.value != null){
-            viewModel.clearDate()
-            return
+            viewModel.clearDate() // if back btn is pressed when deliveryMethodFragment is visible and getDate in viewmodel isn't empty just clear date in viewmodel
+            return                  // this causes scrollview to scroll up inside deliveryMethodFragment.
         }
         if (sideNav.isVisible) {
             drawerLayout.closeDrawer(Gravity.RIGHT)
@@ -94,10 +94,9 @@ class MainActivity : AppCompatActivity() {
         }
         val eachProductFragment = supportFragmentManager.findFragmentByTag(EachProductFragment.TAG)
         if (eachProductFragment != null) {
-            if (!viewModel.getProductList.value.isNullOrEmpty() && eachProductFragment.isVisible) {
-                Log.i(TAG, "visible")
-                viewModel.setProduct(viewModel.getProductList.value!!.last())
-                viewModel.removeLastProductFromList()
+            if (!viewModel.getProductList.value.isNullOrEmpty() && eachProductFragment.isVisible) { // if eachProductFragment is displayed and getProductList isn't empty set
+                viewModel.setProduct(viewModel.getProductList.value!!.last())   // set last product from the list to present it through viewModel
+                viewModel.removeLastProductFromList()               // and remove it from listOfProducts
                 return
             }
         }
@@ -171,8 +170,13 @@ class MainActivity : AppCompatActivity() {
          * Otherwise add date to  date count
          *
          * then group datelist by itself so from calendar day binder app can count size of each group
-         * and set color of day square accordingly. :)*/
-        val docRef = db.collection("placedOrders")
+         * and set color of day square accordingly.
+         *
+         * Get specialsBooking in order to set calendars inside Application
+         * save it in group where key is a Date and values are equivalent to key date, this approach
+         * allows to count size of each key value and then set calendar
+         * :)*/
+        val docRef = db.collection("specialsBooking")
         snapshotListener = docRef.addSnapshotListener { snapShot, error ->
             if (error != null) {
                 Log.w("placedOrders", "Listen failed.", error)
@@ -180,30 +184,33 @@ class MainActivity : AppCompatActivity() {
             } else {
                 val dateList = mutableListOf<LocalDate>()
                 docRef.get().addOnSuccessListener { snap ->
-                snap?.toObjects(Order::class.java)?.forEach { order ->
-                    if (!order.checkIfContainSpecial()) { }
-                    else {
-                        val date = LocalDate.parse(order.orderToBeReadyDate)
-                        dateList.add(date)
+                    snap?.forEach { booking ->
+                        val date = LocalDate.parse(booking["date"].toString())
+                        for (eachTime in 1..(booking["amount"].toString().toInt())) {
+                            dateList.add(date)
+                            Log.i(TAG, date.toString())
+                            Log.i(TAG, "booking amount " + booking["amount"].toString())
+
+                        }
                     }
-                }
-
-                groupedDateList = dateList.groupBy { it }
-                    viewModel.cleanList()
+                    groupedDateList = dateList.groupBy { it }
+                    viewModel.cleanList() // Clean list before populating it again
                     viewModel.setGroupedDateList(groupedDateList)
+                }
             }
-
-            }
-    }
-
-
+        }
 
         /**Download correct delivery pricing from server
-         * and save it in shared preferences*/
+         * and save it in shared preferences
+          They won't be changed often and this approach reduces document reads, at least I guess...*/
         val pricesDocRef = db.collection("constants").document("prices")
         pricesDocRef.get().addOnSuccessListener {
             sharedPreferences.save("prePaidCost",it[Constants.prePaidCost].toString())
             sharedPreferences.save("paidAtDeliveryCost",it[Constants.paidAtDeliveryCost].toString())
+        }
+        val waitTimeDocRef = db.collection("constants").document("specialWaitTime")
+        waitTimeDocRef.get().addOnSuccessListener {
+            sharedPreferences.save("waitTime", it[Constants.waitTime].toString())
         }
 
         /**Get Screen width*/
@@ -212,7 +219,10 @@ class MainActivity : AppCompatActivity() {
         val screenWidth = displayMetrics.widthPixels
 
 
-        /**Initialize Viewmodel and get products list and last product in that list*/
+        /**Initialize Viewmodel and get products list and last product in that list
+         *
+         * This allows coming back to previous watched product with backBTN without changing the whole fragment,
+         * just changing data which product is being displayed.*/
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         viewModel.getProductList.observe(this, Observer { list ->
             listOfProductsInBackStack = list
