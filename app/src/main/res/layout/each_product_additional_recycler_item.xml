@@ -27,12 +27,12 @@
     <TextView
         android:id="@+id/each_product_name_additional_recycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="65dp"
         android:layout_gravity="center"
         android:layout_marginTop="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        tools:text="Chocolate wonder"
+        tools:text="Chocolate wonder banana"
         android:textColor="@color/pink_200"
         android:textSize="22sp"
         android:textStyle="normal" />

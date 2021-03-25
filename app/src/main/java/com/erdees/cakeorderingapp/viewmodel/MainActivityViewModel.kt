@@ -35,4 +35,8 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     fun setGroupedDateList(groupToSet:Map<LocalDate,List<LocalDate>>) = calendarDayRepository.setGroupedList(groupToSet)
 
     fun cleanList() = calendarDayRepository.cleanList()
+
+    fun setOccupiedDate(dateToSet: LocalDate?) = calendarDayRepository.setOccupiedDate(dateToSet)
+
+    fun getOccupiedDate() = calendarDayRepository.getOccupiedDate()
 }

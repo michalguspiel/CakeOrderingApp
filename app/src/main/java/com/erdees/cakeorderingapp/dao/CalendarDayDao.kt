@@ -10,6 +10,9 @@ class CalendarDayDao {
     private var date: LocalDate? = null
     private val dateLive = MutableLiveData<LocalDate>()
 
+    private var occupiedDate: LocalDate? = null
+    private val occupiedDateLive = MutableLiveData<LocalDate>()
+
     private var groupedDateList : Map<LocalDate,List<LocalDate>> = mapOf()
     private val groupedDateListLive = MutableLiveData<Map<LocalDate,List<LocalDate>>>()
 
@@ -22,6 +25,7 @@ class CalendarDayDao {
 
     init {
         dateLive.value = date
+        occupiedDateLive.value = occupiedDate
         groupedDateListLive.value = groupedDateList
         specialCountLive.value = specialCount
     }
@@ -56,6 +60,13 @@ class CalendarDayDao {
     }
 
     fun getSpecialCount() = specialCountLive as LiveData<Long>
+
+    fun setOccupiedDate(dateToSet: LocalDate?){
+        occupiedDate = dateToSet
+        occupiedDateLive.value = occupiedDate
+    }
+
+    fun getOccupiedDate() = occupiedDateLive as LiveData<LocalDate>
 
 
 }

@@ -30,5 +30,8 @@ class DeliveryMethodFragmentViewModel(application: Application): AndroidViewMode
 
     fun setSpecialCount(number: Long) = calendarDayRepository.setSpecialCount(number)
 
+    fun getOccupiedDate() = calendarDayRepository.getOccupiedDate()
+
+    fun getGroupedDateList() = calendarDayRepository.getGroupedList()
 
 }

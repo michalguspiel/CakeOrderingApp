@@ -11,46 +11,69 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textView3"
+        <LinearLayout
+            android:id="@+id/linear_calendar_holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:text="When would You like to get Your order?"
-            android:textColor="@color/black"
-            android:textSize="22sp" />
+            android:orientation="vertical">
 
-        <com.kizitonwose.calendarview.CalendarView
-            android:id="@+id/delivery_method_calendar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            app:cv_dayViewResource="@layout/calendar_day_layout"
-            app:cv_inDateStyle="allMonths"
-            app:cv_monthHeaderResource="@layout/calendar_header"
-            app:cv_orientation="horizontal"
-            app:cv_outDateStyle="endOfRow"
-            app:cv_scrollMode="paged"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="When would You like to get Your order?"
+                android:textColor="@color/black"
+                android:textSize="22sp" />
 
+            <com.kizitonwose.calendarview.CalendarView
+                android:id="@+id/delivery_method_calendar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                app:cv_dayViewResource="@layout/calendar_day_layout"
+                app:cv_inDateStyle="allMonths"
+                app:cv_monthHeaderResource="@layout/calendar_header"
+                app:cv_orientation="horizontal"
+                app:cv_outDateStyle="endOfRow"
+                app:cv_scrollMode="paged"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/delivery_picked_date_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="250dp"
-            android:textColor="@color/black"
-            android:textSize="22sp"
-            tools:text="2021-03-28" />
+            <TextView
+                android:id="@+id/delivery_picked_date_information"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:layout_marginHorizontal="8dp"
+                />
+
+        </LinearLayout>
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/contraint_layout_holder"
             android:layout_width="match_parent"
-            android:layout_height="600dp">
+            android:layout_height="500dp">
+
+
+            <TextView
+                android:id="@+id/delivery_picked_date_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:textSize="22sp"
+                android:layout_marginTop="100dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="2021-03-28" />
 
             <RadioGroup
                 android:id="@+id/delivery_method_group"
@@ -89,11 +112,11 @@
                 android:id="@+id/delivery_method_total_cost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="70dp"
+                android:layout_marginTop="10dp"
                 android:textSize="22sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delivery_picked_date_text"
                 tools:text="Order price: 52€" />
 
             <TextView
@@ -122,9 +145,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:layout_marginBottom="40dp"
                 android:drawableStart="@drawable/ic_baseline_credit_card_24"
                 android:drawableTint="?android:textColorPrimary"
                 android:textAppearance="@android:style/TextAppearance"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/delivery_method_group"

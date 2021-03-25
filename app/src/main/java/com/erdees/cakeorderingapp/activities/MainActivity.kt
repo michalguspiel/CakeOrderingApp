@@ -84,9 +84,15 @@ class MainActivity : AppCompatActivity() {
     presented products in EachProductFragment
      */
     override fun onBackPressed() {
-        if(supportFragmentManager.findFragmentByTag("DeliveryMethodFragment")?.isVisible == true && viewModel.getDate.value != null){
+        if(supportFragmentManager.findFragmentByTag("DeliveryMethodFragment")?.isVisible == true){
+            if(viewModel.getDate.value != null){
             viewModel.clearDate() // if back btn is pressed when deliveryMethodFragment is visible and getDate in viewmodel isn't empty just clear date in viewmodel
             return                  // this causes scrollview to scroll up inside deliveryMethodFragment.
+        }
+            else if(viewModel.getOccupiedDate().value != null){ //
+                viewModel.setOccupiedDate(null)
+                return
+            }
         }
         if (sideNav.isVisible) {
             drawerLayout.closeDrawer(Gravity.RIGHT)

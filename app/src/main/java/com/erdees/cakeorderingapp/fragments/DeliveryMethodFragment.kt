@@ -12,6 +12,8 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.Calendar.CalendarDayBinder
@@ -21,7 +23,6 @@ import androidx.recyclerview.widget.com.erdees.cakeorderingapp.stripe.FirebaseEp
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.viewmodel.CalendarDayBinderViewModel
 import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
-import com.erdees.cakeorderingapp.activities.MainActivity
 import com.erdees.cakeorderingapp.daysOfWeekFromLocale
 import com.erdees.cakeorderingapp.model.Order
 import com.erdees.cakeorderingapp.model.UserShoppingCart
@@ -60,10 +61,12 @@ class DeliveryMethodFragment : Fragment() {
     }
 
     private var costToPay: Double = 0.0
+    val today = LocalDate.now()
+
     private lateinit var confirmPurchaseButton: Button
     private lateinit var paymentMethodTextView: TextView
-    private lateinit var progressBar : ProgressBar
-    private lateinit var loadingText : TextView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var loadingText: TextView
 
     private lateinit var viewModel: DeliveryMethodFragmentViewModel
 
@@ -111,9 +114,11 @@ class DeliveryMethodFragment : Fragment() {
         val sharedPreferences = SharedPreferences(requireContext())
         val prePaidDeliveryCost = sharedPreferences.getValueString("prePaidCost")!!.toDouble()
         val paidAtDeliveryCost = sharedPreferences.getValueString("paidAtDeliveryCost")!!.toDouble()
+        val waitTime = sharedPreferences.getValueString("waitTime")!!.toLong()
 
         /**Setup calendar*/
-        val calendar = view.findViewById<com.kizitonwose.calendarview.CalendarView>(R.id.delivery_method_calendar)
+        val calendar =
+            view.findViewById<com.kizitonwose.calendarview.CalendarView>(R.id.delivery_method_calendar)
         val daysOfWeek = daysOfWeekFromLocale()
 
         /**Creating list of items
@@ -126,9 +131,10 @@ class DeliveryMethodFragment : Fragment() {
         val userShoppingItems: MutableList<UserShoppingCart> = mutableListOf()
         userCart = db.collection("userShoppingCart").whereEqualTo("userId", user.uid)
         userCart.get().addOnSuccessListener { snapshot ->
-            snapshot.forEach { val itemAsObject = it.toObject<UserShoppingCart>()
+            snapshot.forEach {
+                val itemAsObject = it.toObject<UserShoppingCart>()
                 userShoppingItems += itemAsObject
-                if(itemAsObject.special){
+                if (itemAsObject.special) {
                     specialCount += itemAsObject.quantity
                 }
             }
@@ -145,29 +151,47 @@ class DeliveryMethodFragment : Fragment() {
         calendar.monthHeaderBinder = CalendarMonthBinder(daysOfWeek, resources)
         val currentMonth = YearMonth.now()
         val firstMonth = currentMonth.minusMonths(1)
-        val lastMonth = currentMonth.plusMonths(6) // no need to make it more that half an year upfront
+        val lastMonth =
+            currentMonth.plusMonths(6) // no need to make it more that half an year upfront
         calendar.setup(firstMonth, lastMonth, daysOfWeek.first())
         calendar.scrollToMonth(currentMonth)
 
         /**Binders*/
-        val costParenthesis      = view.findViewById<TextView>(R.id.delivery_method_cost_plus_delivery)
-        val totalCost            = view.findViewById<TextView>(R.id.delivery_method_total_cost)
-        val pickedDateTextView   = view.findViewById<TextView>(R.id.delivery_picked_date_text)
-        val radioGroup           = view.findViewById<RadioGroup>(R.id.delivery_method_group)
-        val radioButtonPickup    = view.findViewById<RadioButton>(R.id.delivery_pickup)
-        val radioButtonNotPaid   = view.findViewById<RadioButton>(R.id.delivery_elves_notpaid)
-        val radioButtonPaid      = view.findViewById<RadioButton>(R.id.delivery_elves_upfront)
+        val costParenthesis = view.findViewById<TextView>(R.id.delivery_method_cost_plus_delivery)
+        val totalCost = view.findViewById<TextView>(R.id.delivery_method_total_cost)
+        val pickedDateTextView = view.findViewById<TextView>(R.id.delivery_picked_date_text)
+        val radioGroup = view.findViewById<RadioGroup>(R.id.delivery_method_group)
+        val radioButtonPickup = view.findViewById<RadioButton>(R.id.delivery_pickup)
+        val radioButtonNotPaid = view.findViewById<RadioButton>(R.id.delivery_elves_notpaid)
+        val radioButtonPaid = view.findViewById<RadioButton>(R.id.delivery_elves_upfront)
+        val scrollView = view.findViewById<ScrollView>(R.id.delivery_scroll_view)
+        val pickedDateInfoText = view.findViewById<TextView>(R.id.delivery_picked_date_information)
 
-        val scrollView           = view.findViewById<ScrollView>(R.id.delivery_scroll_view)
-        val disabledScroll = OnTouchListener(){ _: View?, _: MotionEvent? ->
+
+        /**Getting screen width and height and then set calendarHolderLayout as it
+         * so when user picks date for order screen gets full scroll and shows exacly what's expected on every device*/
+        val calendarHolderLayout = view.findViewById<LinearLayout>(R.id.linear_calendar_holder)
+        val calendarHolderLayout2 =
+            view.findViewById<ConstraintLayout>(R.id.contraint_layout_holder)
+        val displayMetrics = context!!.resources.displayMetrics
+
+        calendarHolderLayout.layoutParams =
+            LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels)
+        calendarHolderLayout2.layoutParams =
+            LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels)
+
+        calendarHolderLayout.requestLayout()
+        calendarHolderLayout2.requestLayout()
+        /**Disabled scroll because actions cause scrolling*/
+        val disabledScroll = OnTouchListener() { _: View?, _: MotionEvent? ->
             return@OnTouchListener true
         }
         scrollView.setOnTouchListener(disabledScroll)
 
-        confirmPurchaseButton    = view.findViewById<Button>(R.id.delivery_method_confirm_button)
-        paymentMethodTextView    = view.findViewById(R.id.payment_method_text_view)
-        progressBar              = view.findViewById(R.id.progress_bar)
-        loadingText              = view.findViewById(R.id.loading_text_view)
+        confirmPurchaseButton = view.findViewById<Button>(R.id.delivery_method_confirm_button)
+        paymentMethodTextView = view.findViewById(R.id.payment_method_text_view)
+        progressBar = view.findViewById(R.id.progress_bar)
+        loadingText = view.findViewById(R.id.loading_text_view)
         fun format(number: Double): String {
             return NumberFormat.getCurrencyInstance(Locale.FRANCE).format(number)
         }
@@ -175,6 +199,30 @@ class DeliveryMethodFragment : Fragment() {
         val cartCost = viewModel.getPrice.value!! // TO GET CART COST FROM VIEWMODEL & CART FRAGMENT
         paymentMethodTextView.visibility = View.GONE
 
+
+        var groupedDateList: Map<LocalDate, List<LocalDate>> = mapOf()
+        viewModel.getGroupedDateList().observe(viewLifecycleOwner, { groupedList ->
+            groupedDateList = groupedList
+        })
+
+        /**Getting date picked by user which is already too busy to take this order*/
+        viewModel.getOccupiedDate().observe(viewLifecycleOwner, { date ->
+            if (date != null) {
+                if (date.isEqual(today)) pickedDateInfoText.text =
+                    "Sorry we don't accept orders for today."
+                else if (date.isBefore(today.plusDays(waitTime))) pickedDateInfoText.text =
+                    "Sorry your order contains special product, we need to get this order one day in advance to make it happen."
+                else {
+                    val howManySpecials = groupedDateList[date]?.size
+                    val howManySpecialsLeft = 5 - howManySpecials!!.toInt()
+                    if (howManySpecialsLeft == 0) pickedDateInfoText.text =
+                        "Sorry we can't make anymore specials on $date."
+                    else if(howManySpecialsLeft == 1) pickedDateInfoText.text = "Sorry there's only one special left on $date."
+                    else  pickedDateInfoText.text =
+                        "Sorry we can't take more than ${5 - howManySpecials!!.toInt()} specials for $date. "
+                }
+            } else pickedDateInfoText.text = ""
+        })
 
 
         /**Getting date picked by user from viewmodel and setting it as textview*/
@@ -185,13 +233,12 @@ class DeliveryMethodFragment : Fragment() {
                 pickedDateTextView.text = date.toString()
                 pickedDate = date
                 Log.i(TAG, LocalDate.parse(pickedDate.toString()).toString())
-            }
-            else{ scrollView.fullScroll(View.FOCUS_UP)
+            } else {
+                scrollView.fullScroll(View.FOCUS_UP)
                 pickedDateTextView.text = ""
                 pickedDate = null
             }
         })
-
 
 
         val radioListener = RadioGroup.OnCheckedChangeListener { group, checkedId ->
@@ -248,7 +295,6 @@ class DeliveryMethodFragment : Fragment() {
                 specialCount // check with 1 if triggers cloud functions bye bye Count how many special appears in order and put it here
             )
 
-            Log.i(TAG,"special count: " + specialCount.toString())
 
             when { // FIRST CHANGING ORDER VALUES TO APPROPRIATE THEN PLACING ORDER THEN  SHOW CONFIRMATION DIALOG WHICH TRIGGERS INFORMATION DIALOG
                 radioButtonPickup.isChecked -> {
@@ -355,7 +401,7 @@ class DeliveryMethodFragment : Fragment() {
         }
     }
 
-    fun cleanPickedDate(){
+    fun cleanPickedDate() {
         viewModel.cleanDate()
 
     }
@@ -363,10 +409,10 @@ class DeliveryMethodFragment : Fragment() {
     /**INFORMATION DIALOG WHICH INFORMS IF ORDER WAS PLACED SUCCESFULLY
      * IN CASE PARAMETER BOOLEAN WAS TRUE SNAPSHOTLISTENER GETS REMOVED*/
     fun showDialog(deleteSnapshot: Boolean) {
-         val dialog = AlertDialog.Builder(requireContext())
+        val dialog = AlertDialog.Builder(requireContext())
             .setMessage("Your order has been placed successfully.")
             .setOnDismissListener { // if true remove snapshot
-             if (deleteSnapshot)  snapshotListener.remove()
+                if (deleteSnapshot) snapshotListener.remove()
                 requireActivity().supportFragmentManager.popBackStackImmediate()
             }
 
@@ -374,17 +420,17 @@ class DeliveryMethodFragment : Fragment() {
             .show()
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
             dialog.dismiss()
-             }
+        }
     }
 
     /**WHILE ORDERING WITHOUT PRE PAYING APP SHOWS CONFIRMATION DIALOG
      * WHICH MOVES PROCESS FORWARD*/
-    fun showDialogDoubleConfirmation(order: Order){
-        val dialog =   AlertDialog.Builder(requireContext())
-        .setMessage("I order with an obligation to pay")
-        .setPositiveButton("Proceed", null)
-        .setNegativeButton("Cancel", null)
-        .show()
+    fun showDialogDoubleConfirmation(order: Order) {
+        val dialog = AlertDialog.Builder(requireContext())
+            .setMessage("I order with an obligation to pay")
+            .setPositiveButton("Proceed", null)
+            .setNegativeButton("Cancel", null)
+            .show()
 
         dialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener {
             placeOrder(order)
@@ -396,19 +442,19 @@ class DeliveryMethodFragment : Fragment() {
 
     }
 
-    fun showAddressWarningDialog(){
+    fun showAddressWarningDialog() {
         AlertDialog.Builder(requireContext())
             .setMessage("You must provide address for your account")
             .setNegativeButton("Back", null)
             .show()
     }
 
-    fun startLoading(){
+    fun startLoading() {
         progressBar.visibility = View.VISIBLE
         loadingText.visibility = View.VISIBLE
     }
 
-    fun stopLoading(){
+    fun stopLoading() {
         progressBar.visibility = View.GONE
         loadingText.visibility = View.GONE
     }
