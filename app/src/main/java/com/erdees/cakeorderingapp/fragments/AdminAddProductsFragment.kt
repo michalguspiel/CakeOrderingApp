@@ -1,6 +1,7 @@
 package androidx.recyclerview.widget.com.erdees.cakeorderingapp.fragments
 
 import android.app.Activity.RESULT_OK
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.Bitmap
@@ -13,8 +14,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.erdees.cakeorderingapp.Constants
-import com.erdees.cakeorderingapp.R
+import androidx.fragment.app.FragmentTransaction
+import com.erdees.cakeorderingapp.*
 import com.erdees.cakeorderingapp.model.Products
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -26,18 +27,30 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
 import java.io.ByteArrayOutputStream
 import java.io.File
+import kotlin.random.Random
 
 
-class AdminAddProductsFragment: Fragment() {
+class AdminAddProductsFragment : Fragment() {
     val REQUEST_CODE = 149
 
     private lateinit var filePath: Uri
     lateinit var imageView: ImageView
-    private lateinit var firebaseStorage :FirebaseStorage
+    private lateinit var productDescInput: TextInputEditText
+    private lateinit var productPriceInput: TextInputEditText
+    private lateinit var firebaseStorage: FirebaseStorage
     private lateinit var db: FirebaseFirestore
     private lateinit var firebaseStorageRef: StorageReference
-    private lateinit var productNameInput : TextInputEditText
-    private lateinit var imageUri : Uri
+    private lateinit var productNameInput: TextInputEditText
+    private lateinit var imageUri: Uri
+    private lateinit var generatedId: String
+    private lateinit var isSpecialCheckbox : CheckBox
+
+    val listOfIngredients = mutableListOf<String>()
+    val listOfTags = mutableListOf<String>()
+    var isSpecial: Boolean = false
+
+    private lateinit var testReference: StorageReference
+    private lateinit var testImageRef: StorageReference
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,34 +58,41 @@ class AdminAddProductsFragment: Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.admin_add_products_fragment, container, false)
 
-        val listOfIngredients = mutableListOf<String>()
-        val listOfTags = mutableListOf<String>()
-        var isSpecial: Boolean = false
-
+        /**Randomize id for new picture
+         * Every time this screen is open new Id is generated
+         * I'm using this approach so After adding picture to storage I have reference to that picture right here in [generatedId] */
+        val randomSeed = Random(System.currentTimeMillis())
+        val randomNumber = randomSeed.nextLong(9999999L, 999999999L)
+        generatedId = randomNumber.toString()
 
         /**Binders*/
         val uploadImageButton = view.findViewById<Button>(R.id.admin_add_image_button)
-        val isSpecialCheckbox = view.findViewById<CheckBox>(R.id.admin_add_special_checkbox)
+         isSpecialCheckbox = view.findViewById(R.id.admin_add_special_checkbox)
         productNameInput =
-            view.findViewById<TextInputEditText>(R.id.admin_add_products_name_input)
-        val productPriceInput =
-            view.findViewById<TextInputEditText>(R.id.admin_add_products_price_input)
-        val productDescInput =
-            view.findViewById<TextInputEditText>(R.id.admin_add_products_desc_input)
+            view.findViewById(R.id.admin_add_products_name_input)
+        productPriceInput =
+            view.findViewById(R.id.admin_add_products_price_input)
+        productDescInput =
+            view.findViewById(R.id.admin_add_products_desc_input)
         val addIngredientsBox = view.findViewById<TextInputLayout>(R.id.admin_add_ingredient_box)
         val ingredient =
             view.findViewById<TextInputEditText>(R.id.admin_add_products_ingredient_input)
         val ingredientList = view.findViewById<TextView>(R.id.admin_add_ingredient_list)
         val tagCheckBoxHolder = view.findViewById<LinearLayout>(R.id.admin_add_checkbox_layout)
         val submitButton = view.findViewById<Button>(R.id.admin_add_submit_product)
+        val deleteLastTagButton = view.findViewById<TextView>(R.id.admin_add_delete_last_tag)
+
 
         imageView = view.findViewById(R.id.admin_add_products_imageview)
 
-         db = Firebase.firestore
-         firebaseStorage = FirebaseStorage.getInstance()
-         firebaseStorageRef = firebaseStorage.reference
+        db = Firebase.firestore
+        firebaseStorage = FirebaseStorage.getInstance()
+        firebaseStorageRef = firebaseStorage.reference
 
-
+        val storage = FirebaseStorage.getInstance()
+        val storageRef = storage.reference
+        testReference = storageRef.child("$generatedId.jpg")
+        testImageRef = storageRef.child("images/$generatedId.jpg")
 
 
         val availableTags = Constants().tagArray
@@ -109,8 +129,15 @@ class AdminAddProductsFragment: Fragment() {
             listOfIngredients += inputIngredient
             ingredientList.text = listOfIngredients.joinToString(", ") { it }
             ingredient.text?.clear()
+            deleteLastTagButton.makeVisible()
         }
 
+
+        deleteLastTagButton.setOnClickListener {
+            listOfIngredients.remove(listOfIngredients.last())
+            ingredientList.text = listOfIngredients.joinToString(",") { it  }
+            if(listOfIngredients.size == 0) deleteLastTagButton.makeGone()
+        }
 
         isSpecialCheckbox.setOnCheckedChangeListener(specialCheckBoxListener)
 
@@ -121,28 +148,12 @@ class AdminAddProductsFragment: Fragment() {
 
 
         submitButton.setOnClickListener {
-
-            var productPictureUrl = ""
-            uploadImage()
-            testImageRef.downloadUrl.addOnSuccessListener {
-              productPictureUrl =   it.toString()
-                Log.i("TEST",it.toString())
+            if(productNameInput.text.isNullOrBlank() || productDescInput.text.isNullOrBlank() || productPriceInput.text.isNullOrBlank() || imageView.drawable == null){
+                Toast.makeText(context,"You must provide all product information and picture!",Toast.LENGTH_LONG).show()
+                return@setOnClickListener
             }
-            val productToAdd = Products(
-                productNameInput.text.toString(),
-                listOfTags,
-                productDescInput.text.toString(),
-                productPriceInput.text.toString().toDouble(),
-                productPictureUrl,
-                listOfIngredients,
-                isSpecial
 
-            )
-            // Create a product Object
-            // and then add it to database!
-
-            val collectionRef = db.collection("products")
-            collectionRef.add(productToAdd)
+            uploadImage()
         }
 
         return view
@@ -160,45 +171,63 @@ class AdminAddProductsFragment: Fragment() {
         startActivityForResult(intent, REQUEST_CODE)
     }
 
-    /**Made as functions so initialized when called*/
-    fun pictureReference() = firebaseStorageRef.child("${productNameInput.text.toString()}.jpg")
-    fun pictureImagesRef() = firebaseStorageRef.child("images/${productNameInput.text.toString()}.jpg")
-    val storage = FirebaseStorage.getInstance()
-    val storageRef = storage.reference
-    val testReference = storageRef.child("testpictureupload.jpg")
-        val testImageRef = storageRef.child("images/testpictureupload.jpg")
 
-    fun uploadImage(){
+    fun uploadImage() {
         val file = imageUri
         var uploadTask = testImageRef.putFile(file)
         uploadTask.addOnSuccessListener {
-Log.i("TEST", "success")
+            Log.i("TEST", "success")
+            testImageRef.downloadUrl.addOnSuccessListener { uri ->
+                Log.i("TEST GOT IT? ", uri.toString())
+                uploadProduct(uri)
+            }
         }
             .addOnFailureListener {
                 Log.i("TEST", "fail")
-
             }
-
     }
 
-fun makeAsBitmapAndUpload() {
-    // Get the data from an ImageView as bytes
-    imageView.isDrawingCacheEnabled = true
-    imageView.buildDrawingCache()
-    val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-    val baos = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-    val data = baos.toByteArray()
-
-    var uploadTask = testReference.putBytes(data)
-    uploadTask.addOnFailureListener {
-        // Handle unsuccessful uploads
-    }.addOnSuccessListener { taskSnapshot ->
-        Log.i("TEST",taskSnapshot.uploadSessionUri.toString())
-        Log.i("TEST",taskSnapshot.bytesTransferred.toString())
-        Log.i("TEST","Success")
+    fun uploadProduct(uri: Uri) {
+        val productToAdd = Products(
+            productNameInput.text.toString(),
+            listOfTags,
+            productDescInput.text.toString(),
+            productPriceInput.text.toString().toDouble(),
+            uri.toString(),
+            listOfIngredients,
+            isSpecial
+        )
+        val collectionRef = db.collection("products")
+        collectionRef.add(productToAdd).addOnSuccessListener {
+            showDialog()
+        }
+        Log.i("TEST", "Should be added.")
     }
-}
+
+
+    fun showDialog() {
+        val alertDialog = AlertDialog.Builder(context)
+            .setMessage("Product is added to server.")
+            .setNegativeButton("Back", null)
+            .show()
+
+        alertDialog.setOnDismissListener {
+            recreate()
+            //IDK BUT TEXTFIELD DONT RESTART WHEN FRAGMENT IS RECREATED, FOR NOW ILL JUST RESTART THEM MANUALLY IN HERE, LATER ILL FIGURE SMTHN OUT.
+            productNameInput.text?.clear()
+            productDescInput.text?.clear()
+            productPriceInput.text?.clear()
+            isSpecialCheckbox.isChecked = false
+
+        }
+    }
+
+    fun recreate() {
+        val ft: FragmentTransaction = this.fragmentManager!!.beginTransaction()
+        ft.detach(this)
+        ft.attach(this)
+        ft.commit()
+    }
 
     // Override onActivityResult method
     override fun onActivityResult(
@@ -211,15 +240,14 @@ fun makeAsBitmapAndUpload() {
             resultCode,
             data
         )
-
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null && data.data != null) {
-            imageView.setImageURI(data?.data) // SET chosen image
-            imageUri = data?.data!!
+            imageView.setImageURI(data.data) // SET chosen image
+            imageUri = data.data!!
             // Get the Uri of data
             filePath = data.data!!
-
         }
     }
 
-        }
+
+}
 

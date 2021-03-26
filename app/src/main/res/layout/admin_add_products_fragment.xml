@@ -116,7 +116,7 @@
             app:endIconMode="custom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/admin_add_ingredient_list">
+            app:layout_constraintTop_toBottomOf="@+id/admin_add_delete_last_tag">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/admin_add_products_ingredient_input"
@@ -129,7 +129,8 @@
             android:id="@+id/admin_add_ingredient_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/admin_add_special_checkbox"
@@ -161,6 +162,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/admin_add_checkbox_layout" />
+
+        <TextView
+            android:id="@+id/admin_add_delete_last_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Delete last tag"
+            android:textColor="@color/com_facebook_blue"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/admin_add_ingredient_list" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
