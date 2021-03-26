@@ -15,8 +15,9 @@
         android:id="@+id/mi_calendar"
         android:title="Special's calendar" />
     <item
-        android:id="@+id/mi_settings"
-        android:title="Settings" />
+        android:id="@+id/mi_admin"
+        android:title="Admin options"
+        android:visible="false"/>
     <item
         android:id="@+id/mi_logout"
         android:title="Logout" />

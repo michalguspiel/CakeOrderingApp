@@ -13,13 +13,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
 import com.bumptech.glide.Glide
-import com.erdees.cakeorderingapp.R
+import com.erdees.cakeorderingapp.*
 import com.erdees.cakeorderingapp.adapter.EachProductAdapter
-import com.erdees.cakeorderingapp.makeGone
 import com.erdees.cakeorderingapp.model.Products
-import com.erdees.cakeorderingapp.openFragment
-import com.erdees.cakeorderingapp.randomizeTag
 import com.erdees.cakeorderingapp.viewmodel.EachProductAdapterViewModel
 import com.erdees.cakeorderingapp.viewmodel.EachProductFragmentViewModel
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
@@ -49,6 +47,9 @@ class EachProductFragment : Fragment() {
         val view = inflater.inflate(R.layout.each_product_fragment, container, false)
         val viewModel = ViewModelProvider(this).get(EachProductFragmentViewModel::class.java)
 
+        val sharedPreferences = SharedPreferences(requireContext())
+
+        val waitTime = sharedPreferences.getValueString(Constants.waitTime)
 
         /**Initialize firestore and get few products *
          * FOR NOW RANDOMIZE TAG AND GETTING PRODUCTS WITH IT
@@ -118,14 +119,14 @@ class EachProductFragment : Fragment() {
             ingredientList.text = "Product includes: " + model.productIngredients.joinToString(", ") { it } + "."
 
 
-            waitingTime.text = when (model.productWaitTime) {
-                0L -> "Available same day in shop or to be delivered next day."
-                else -> "Shortest waiting time for this product is ${model.productWaitTime} days."
+            waitingTime.text = when (model.special) {
+                false -> "Available same day in shop or to be delivered next day."
+                else -> "Shortest waiting time for this product is $waitTime days."
             }
 
             if(!model.special) specialCalendarButton.makeGone()
             specialCalendarButton.setOnClickListener {
-                openFragment(calendarFragment,CalendarFragment.TAG,parentFragmentManager)
+                openFragment(calendarFragment,CalendarFragment.TAG,parentFragmentManager,R.id.container)
             }
 
 

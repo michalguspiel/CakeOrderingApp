@@ -16,6 +16,8 @@ class CalendarDayDao {
     private var groupedDateList : Map<LocalDate,List<LocalDate>> = mapOf()
     private val groupedDateListLive = MutableLiveData<Map<LocalDate,List<LocalDate>>>()
 
+    private var presentedDate: LocalDate? = null
+    private val presentedDateLive = MutableLiveData<LocalDate>()
     /**Special count which informs calendar how many specials user is trying to order
      * I decided to set it inside calendar day dao because it has direct effect on calendar
      * and there's no point of making another dao*/
@@ -26,6 +28,7 @@ class CalendarDayDao {
     init {
         dateLive.value = date
         occupiedDateLive.value = occupiedDate
+        presentedDateLive.value = presentedDate
         groupedDateListLive.value = groupedDateList
         specialCountLive.value = specialCount
     }
@@ -68,5 +71,12 @@ class CalendarDayDao {
 
     fun getOccupiedDate() = occupiedDateLive as LiveData<LocalDate>
 
+
+    fun setPresentedDate(dateToSet: LocalDate?){
+        presentedDate = dateToSet
+        presentedDateLive.value = presentedDate
+    }
+
+    fun getPresentedDate() = presentedDateLive as LiveData<LocalDate>
 
 }

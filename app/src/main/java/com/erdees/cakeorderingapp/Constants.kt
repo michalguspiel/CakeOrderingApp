@@ -2,7 +2,18 @@ package com.erdees.cakeorderingapp
 
 
 class Constants {
-
+    val tagArray: Array<String> = arrayOf(
+        "bread",
+        "chocolate",
+        "dessert",
+        "muffin",
+        "birthdaycake",
+        "eclair",
+        "fruits",
+        "whitechocolate",
+        "donut",
+        "cake"
+    )
 
     companion object {
         const val prePaidCost = "prePaidDelivery"

@@ -52,8 +52,6 @@ class LoginActivity: AppCompatActivity() {
         }
         auth = Firebase.auth
 
-        /**Firebase*/
-        val db = Firebase.firestore
 
         /**Was losing my mind with making this status bar translucent and same color as main activity
          * this is workaround cause otherwise status bar is gray for no reason */

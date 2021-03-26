@@ -20,6 +20,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
+import androidx.recyclerview.widget.com.erdees.cakeorderingapp.activities.AdminActivity
 import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.checkIfContainSpecial
@@ -34,6 +35,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -51,6 +53,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var db : FirebaseFirestore
     private lateinit var cartButton: ImageButton
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var menuButton: ImageButton
@@ -61,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listOfProductsInBackStack: List<Products>
 
     lateinit var groupedDateList: Map<LocalDate,List<LocalDate>>
-
+    var isUserAdmin = false
     lateinit var snapshotListener: ListenerRegistration
 
 
@@ -132,6 +135,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateUI(user: FirebaseUser?) {
         Log.i(TAG, "UPDATE UI CASTED")
+        sideNav.menu.findItem(R.id.mi_admin).isVisible = false
+
         if (user == null) {
             welcomeTextView.text = ""
             footer.visibility = View.VISIBLE
@@ -139,13 +144,21 @@ class MainActivity : AppCompatActivity() {
             cartButton.visibility = View.GONE
             sideNav.menu.findItem(R.id.mi_logout).isVisible = false
             return
-        } else {
+        }
+        else {
             welcomeTextView.text = setWelcomeMsg(user)
             cartButton.visibility = View.VISIBLE
             sideNav.menu.findItem(R.id.mi_logout).isVisible = true
             footer.visibility = View.GONE
             drawerLayout.closeDrawer(Gravity.RIGHT)
+            db.collection("users").document(user.uid).get().addOnSuccessListener {
+                if(it["admin"] != null && it["admin"] as Boolean){
+                    Log.i(TAG,"SET UI FOR ADMIN")
+                    sideNav.menu.findItem(R.id.mi_admin).isVisible = true
+                }
+            }
         }
+
     }
 
     private fun setWelcomeMsg(user: FirebaseUser?): String {
@@ -163,11 +176,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val db = Firebase.firestore
+        db = Firebase.firestore
 
         /**Shared preferences,
          * whenever app starts
-         * delivery pricing is downloaded from server and saved in shared preferences*/
+         * common data is downloaded from server and saved in shared preferences*/
         val sharedPreferences = SharedPreferences(this)
 
 
@@ -194,9 +207,6 @@ class MainActivity : AppCompatActivity() {
                         val date = LocalDate.parse(booking["date"].toString())
                         for (eachTime in 1..(booking["amount"].toString().toInt())) {
                             dateList.add(date)
-                            Log.i(TAG, date.toString())
-                            Log.i(TAG, "booking amount " + booking["amount"].toString())
-
                         }
                     }
                     groupedDateList = dateList.groupBy { it }
@@ -268,7 +278,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         cartButton.setOnClickListener {
-            openFragment(myCartFragment, MyCartFragment.TAG, supportFragmentManager)
+            openFragment(myCartFragment, MyCartFragment.TAG, supportFragmentManager,R.id.container)
         }
 
         /**Firebase*/
@@ -287,21 +297,23 @@ class MainActivity : AppCompatActivity() {
                 when (item.itemId) {
                     R.id.mi_account -> {
                         if (auth.currentUser == null) openLoginActivity()
-                        else openFragment(myAccountFragment, MyAccountFragment.TAG, manager)
+                        else openFragment(myAccountFragment, MyAccountFragment.TAG, manager,R.id.container)
 
                     }
                     R.id.mi_orders -> {
                         if (auth.currentUser == null) openLoginActivity()
-                        else openFragment(myOrdersFragment,MyOrdersFragment.TAG,manager)
+                        else openFragment(myOrdersFragment,MyOrdersFragment.TAG,manager,R.id.container)
                     }
-                    R.id.mi_settings -> {
+                    R.id.mi_admin -> {
+                        val adminActivity = Intent(this,AdminActivity::class.java)
+                        startActivity(adminActivity,savedInstanceState)
                     }
                     R.id.mi_calendar -> {
 
-                        openFragment(calendarFragment,CalendarFragment.TAG,manager)
+                        openFragment(calendarFragment,CalendarFragment.TAG,manager,R.id.container)
                     }
                     R.id.mi_products -> {
-                        openFragment(productsFragment, ProductsFragment.TAG, manager)
+                        openFragment(productsFragment, ProductsFragment.TAG, manager,R.id.container)
                     }
                     else -> {
                         logout()
@@ -311,7 +323,7 @@ class MainActivity : AppCompatActivity() {
                 drawerLayout.closeDrawer(GravityCompat.END)
                 return@OnNavigationItemSelectedListener true
             }
-        openFragment(mainFragment, MainFragment.TAG, manager)
+        openFragment(mainFragment, MainFragment.TAG, manager,R.id.container)
         welcomeTextView = sideNav.getHeaderView(0).findViewById(R.id.user_name_header)
         sideNav.setNavigationItemSelectedListener(sideNavListener)
     }

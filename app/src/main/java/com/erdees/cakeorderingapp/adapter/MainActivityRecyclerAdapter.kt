@@ -85,7 +85,7 @@ class MainActivityRecyclerAdapter(
                     db.collection("products").document(model.productId).get()// get productid from productforrecycler
                         .addOnSuccessListener {
                             viewModel.setProduct(it.toObject(Products::class.java)!!)       //set it in viewmodel
-                            openFragment(eachProductFragment,EachProductFragment.TAG,supportFragmentManager)    // opens fragment
+                            openFragment(eachProductFragment,EachProductFragment.TAG,supportFragmentManager,R.id.container)    // opens fragment
                         }
 
                 }
@@ -120,7 +120,7 @@ class MainActivityRecyclerAdapter(
                     .into(image)
                 val window = holder.itemView.findViewById<LinearLayout>(R.id.more_pastries_window)
                 window.setOnClickListener {
-                    openFragment(productsFragment,ProductsFragment.TAG,supportFragmentManager)
+                    openFragment(productsFragment,ProductsFragment.TAG,supportFragmentManager,R.id.container)
                 }
 
             }

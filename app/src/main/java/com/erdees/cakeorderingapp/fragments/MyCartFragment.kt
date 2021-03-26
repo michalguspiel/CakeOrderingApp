@@ -112,7 +112,7 @@ class MyCartFragment : Fragment() {
 
 
         proceedButton.setOnClickListener {
-            openFragment(deliveryMethodFragment, DeliveryMethodFragment.TAG, parentFragmentManager)
+            openFragment(deliveryMethodFragment, DeliveryMethodFragment.TAG, parentFragmentManager,R.id.container)
         }
 
         return view

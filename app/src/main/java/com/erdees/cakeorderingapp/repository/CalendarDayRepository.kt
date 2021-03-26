@@ -27,5 +27,8 @@ class CalendarDayRepository(val dao: CalendarDayDao) {
 
     fun getOccupiedDate() = dao.getOccupiedDate()
 
+    fun setPresentedDate(dateToSet: LocalDate?) = dao.setPresentedDate(dateToSet)
+
+    fun getPresentedDate() = dao.getPresentedDate()
 
 }

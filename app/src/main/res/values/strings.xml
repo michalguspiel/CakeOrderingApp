@@ -11,7 +11,8 @@
     <string name="fb_login_protocol_scheme">fb368088240842474</string>
     <string name="facebook_application_id" translatable="false">368088240842474</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb368088240842474</string>
-
+    <string name="previous"><![CDATA[<-]]></string>
+    <string name="next"><![CDATA[->]]></string>
 
 
 </resources>

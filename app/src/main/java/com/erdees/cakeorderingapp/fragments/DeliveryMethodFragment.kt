@@ -61,8 +61,7 @@ class DeliveryMethodFragment : Fragment() {
     }
 
     private var costToPay: Double = 0.0
-    val today = LocalDate.now()
-
+    private val today: LocalDate = LocalDate.now()
     private lateinit var confirmPurchaseButton: Button
     private lateinit var paymentMethodTextView: TextView
     private lateinit var progressBar: ProgressBar
@@ -106,7 +105,7 @@ class DeliveryMethodFragment : Fragment() {
             hasUserProvidedAddress =
                 !(addressSummed.isNullOrBlank() || postCode.isNullOrBlank() || city.isNullOrBlank())
 
-            val list = listOf<String>(address, address2, postCode, city)
+            val list = listOf(address, address2, postCode, city)
             userAddress = list.joinToString(" ") { it }
         }
 
@@ -250,17 +249,12 @@ class DeliveryMethodFragment : Fragment() {
             }
             else if (!address.isNullOrBlank()) {
                 userAnotherAddress = address
-            }
-            if(userAnotherAddress.isNullOrBlank()) {
-                addressTextView.text = setAddress(userAddress)
-                changeAddressButton.makeVisible()
-                useHomeAddressButton.makeGone()
-            }
-            else {
                 addressTextView.text = setAddress(userAnotherAddress)
                 changeAddressButton.makeGone()
                 useHomeAddressButton.makeVisible()
             }
+
+
         })
 
 
@@ -331,6 +325,8 @@ class DeliveryMethodFragment : Fragment() {
              viewModel.setAddress("")
              useHomeAddressButton.makeGone()
              changeAddressButton.makeVisible()
+             addressTextView.text = setAddress(userAddress)
+
          }
 
 
@@ -348,12 +344,13 @@ class DeliveryMethodFragment : Fragment() {
                 Timestamp.now(),
                 pickedDate.toString(),
                 userAddress,
+                user.displayName,
                 Constants.orderActive,
                 0.0,
                 specialCount
             )
-            if (userAnotherAddress.isNotBlank()) orderToPlace.userAddress = userAnotherAddress
-
+            if (userAnotherAddress.isNotBlank()) orderToPlace.userAddress = userAnotherAddress // to change order address in case user doesnt want it shipped to his home address
+            if(user.displayName.isNullOrBlank()) orderToPlace.userName = user.email
             when { // FIRST CHANGING ORDER VALUES TO APPROPRIATE THEN PLACING ORDER THEN  SHOW CONFIRMATION DIALOG WHICH TRIGGERS INFORMATION DIALOG
                 radioButtonPickup.isChecked -> {
                     orderToPlace.deliveryMethod = "Pickup"
@@ -363,7 +360,7 @@ class DeliveryMethodFragment : Fragment() {
 
                 }
                 radioButtonNotPaid.isChecked -> {
-                    if (!hasUserProvidedAddress) {
+                    if (!hasUserProvidedAddress && userAnotherAddress.isNullOrBlank()) {
                         showAddressWarningDialog()
                         return@setOnClickListener
                     }
@@ -373,7 +370,7 @@ class DeliveryMethodFragment : Fragment() {
                     showDialogDoubleConfirmation(orderToPlace)
                 }
                 radioButtonPaid.isChecked -> {
-                    if (!hasUserProvidedAddress) {
+                    if (!hasUserProvidedAddress && userAnotherAddress.isNullOrBlank() ) {
                         showAddressWarningDialog()
                         return@setOnClickListener
                     }
@@ -389,10 +386,7 @@ class DeliveryMethodFragment : Fragment() {
             paymentSession.presentPaymentMethodSelection()
         }
 
-
-        setupPaymentSession()
-            radioGroup.check(R.id.delivery_pickup) // to start with first button checked
-
+            setupPaymentSession()
             return view
     }
 
@@ -449,7 +443,7 @@ class DeliveryMethodFragment : Fragment() {
 
 
 
-    /**FUNCTIONS PLACE ORDER AND DELETE EVERY ITEM FROM USERSHOPPINGCART*/
+    /** HELPER FUNCTIONS*/
 
     fun setAddress(address: String?):String{
         return if(address.isNullOrBlank()) "You haven't provided address in your profile."
@@ -470,7 +464,6 @@ class DeliveryMethodFragment : Fragment() {
 
     fun cleanPickedDate() {
         viewModel.cleanDate()
-
     }
 
     /**INFORMATION DIALOG WHICH INFORMS IF ORDER WAS PLACED SUCCESFULLY
@@ -482,7 +475,6 @@ class DeliveryMethodFragment : Fragment() {
                 if (deleteSnapshot) snapshotListener.remove()
                 requireActivity().supportFragmentManager.popBackStackImmediate()
             }
-
             .setNegativeButton("Continue", null)
             .show()
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {

@@ -14,28 +14,17 @@ import java.util.*
 import kotlin.random.Random
 
 fun randomizeTag():String{
-        val tagArray: Array<String> = arrayOf(
-            "bread",
-            "chocolate",
-            "dessert",
-            "muffin",
-            "birthdaycake",
-            "eclair",
-            "fruits",
-            "whitechocolate",
-            "donut",
-            "cake"
-        )
+        val tagArray: Array<String> = Constants().tagArray
        return tagArray[Random(System.currentTimeMillis()).nextInt(tagArray.size-1)]
     }
 
 
-    fun openFragment(fragment: Fragment, fragmentTag: String, manager: FragmentManager) {
+    fun openFragment(fragment: Fragment, fragmentTag: String, manager: FragmentManager,container: Int ) {
         val backStateName = fragment.javaClass.name
         val fragmentPopped = manager.popBackStackImmediate(backStateName, 0)
         if (!fragmentPopped && manager.findFragmentByTag(fragmentTag) == null) { //if fragment isn't in backStack, create it
             val ft: FragmentTransaction = manager.beginTransaction()
-            ft.replace(R.id.container, fragment, fragmentTag)
+            ft.replace(container, fragment, fragmentTag)
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
             ft.addToBackStack(backStateName)
             ft.commit()

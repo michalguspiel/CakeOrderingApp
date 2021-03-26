@@ -53,7 +53,7 @@ class ProductsAdapter(options: FirestorePagingOptions<Products>,
 
         layout.setOnClickListener{
             viewModel.setProduct(model)
-            openFragment(eachProductFragment,EachProductFragment.TAG,supportFragmentManager)
+            openFragment(eachProductFragment,EachProductFragment.TAG,supportFragmentManager,R.id.container)
 
 
         }

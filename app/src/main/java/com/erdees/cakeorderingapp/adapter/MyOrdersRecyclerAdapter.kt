@@ -27,7 +27,8 @@ class MyOrdersRecyclerAdapter(
     options: FirestorePagingOptions<Order>,
     val activity: Activity,
     val supportFragmentManager: FragmentManager,
-    val viewModel: MyOrdersRecyclerAdapterViewModel
+    val viewModel: MyOrdersRecyclerAdapterViewModel,
+    val tag: String
 ) : FirestorePagingAdapter<Order, MyOrdersRecyclerAdapter.OrderItemViewHolder>(options) {
 
     class OrderItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -62,7 +63,9 @@ class MyOrdersRecyclerAdapter(
 
         moreButton.setOnClickListener {
             viewModel.setOrder(model) // SEND THIS MODEL TO VIEWMODEL IN ORDER TO PRESENT IT IN [EachOrderFragment]
-            openFragment(eachOrderFragment,EachOrderFragment.TAG,supportFragmentManager)
+
+            if(tag == "MyOrdersFragment") openFragment(eachOrderFragment,EachOrderFragment.TAG,supportFragmentManager,R.id.container)
+            else openFragment(eachOrderFragment,EachOrderFragment.TAG,supportFragmentManager,R.id.admin_container) // when this is opened from admin activity, it need to change diffrent container.
         }
 
     }

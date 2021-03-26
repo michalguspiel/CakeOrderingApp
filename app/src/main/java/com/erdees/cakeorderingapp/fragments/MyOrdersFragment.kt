@@ -92,8 +92,8 @@ class MyOrdersFragment : Fragment() {
 
         /**Adapters, two because of two query options*/
         val viewModel = ViewModelProvider(this).get(MyOrdersRecyclerAdapterViewModel::class.java) // initialized here, cause need to pass it to each adapter
-        activeAdapter = MyOrdersRecyclerAdapter(activeOptions,requireActivity(),parentFragmentManager,viewModel)
-        historyAdapter = MyOrdersRecyclerAdapter(historyOptions,requireActivity(),parentFragmentManager,viewModel)
+        activeAdapter = MyOrdersRecyclerAdapter(activeOptions,requireActivity(),parentFragmentManager,viewModel, TAG)
+        historyAdapter = MyOrdersRecyclerAdapter(historyOptions,requireActivity(),parentFragmentManager,viewModel,TAG)
 
 
 

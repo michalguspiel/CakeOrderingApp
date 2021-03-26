@@ -35,7 +35,6 @@ class MyAccountFragment : Fragment() {
         auth = Firebase.auth
 
 
-
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_account)
          adapter = MyAccountAdapter(auth.currentUser, requireActivity(),parentFragmentManager)
 
