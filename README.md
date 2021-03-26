@@ -5,7 +5,7 @@ My first firebase project, staying focused on learning new things and using skil
 I think app would look better if the pics were a bit more professional(right now I'm using my own pictures, of my own stuff!
 
 ### 26/03/2022
- Over 3 weeks ago when I was told that Salutorget is going to be closed for 3 weeks due to covid-19 lockdown I set myself a target for this lockdown, to focus on something, to have a reason to wake up early for a reason and stay motivated. Now it's sort of deadline for this work I have set for myself. I am quite happy with result, all of the functionality which I wanted got implemented, I will still have to improve layout, and I would like to give admin more control of uploading picture for product, meybe make pictures in array and picture in presented product fragment a recycler view, we will see. I'll come back to improving layout and fixing warnings soon, rest for later.
+ Over 3 weeks ago when I was told that Salutorget is going to be closed for 3 weeks due to covid-19 I have set myself a target for this lockdown, this app, to focus on something, to have a reason to wake up early for a reason and stay motivated. Now it's sort of deadline for this work I have set for myself. I am quite happy with result, all of the functionality which I wanted got implemented, I will still have to improve layout, and I would like to give admin more control of uploading picture for product, meybe make pictures in array and picture in presented product fragment a recycler view, we will see. I'll come back to improving layout and fixing warnings soon, rest for later.
 
 
 ## Screenshots
