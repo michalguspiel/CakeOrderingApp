@@ -42,7 +42,7 @@ I think app would look better if the pics were a bit more professional(right now
 - Presentation of baked goods
 - Store contact options
 - Calendar (Let's say shop cannot handle to bake more than 3 birthday cakes a day due to space limit I want calendar when user can see if birthday cakes are available for this day)
-- Admin account (I want to make a special options for user who's signed as an admin, for a bakestore worker, like checking orders for this day,tomorrow, signing orders as completed etc. )
+- Admin account (Checking orders, signing them as completed, adding new products to the shop. )
 
 ## TODO features
 - Better layout and GUI(I don't like how app looks but it's still in progress)
