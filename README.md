@@ -3,6 +3,11 @@
 My first firebase project, staying focused on learning new things and using skills I have already learnt. So far app allows user to sign up(with google, facebook or email address ) order a bake good, pay for it (or not), follow his orders, check orders history, check shopping cart. I look at this project as a template in case I'd need to build a commerce app like shop, barber studio app where customers can book services or anything else.
 
 I think app would look better if the pics were a bit more professional(right now I'm using my own pictures, of my own stuff!
+
+### 26/03/2022
+ Over 3 weeks ago when I was told that Salutorget is going to be closed for 3 weeks due to covid-19 I have set myself a target for this lockdown, this app, to focus on something, to have a reason to wake up early for a reason and stay motivated. Now it's sort of deadline for this work I have set for myself. I am quite happy with result, all of the functionality which I wanted got implemented, I will still have to improve layout, and I would like to give admin more control of uploading picture for product, meybe make pictures in array and picture in presented product fragment a recycler view, we will see. I'll come back to improving layout and fixing warnings soon, rest for later.
+
+
 ## Screenshots
 
 <p align="center">
@@ -17,7 +22,7 @@ I think app would look better if the pics were a bit more professional(right now
 
 
 ## Technologies used: 
-- Firebase
+- Firebase(Firebase auth, Firestore ,Firebase storage)
 - Stripe
 - Glide
 - MVVM pattern
@@ -37,11 +42,11 @@ I think app would look better if the pics were a bit more professional(right now
 - Presentation of baked goods
 - Store contact options
 - Calendar (Let's say shop cannot handle to bake more than 3 birthday cakes a day due to space limit I want calendar when user can see if birthday cakes are available for this day)
+- Admin account (I want to make a special options for user who's signed as an admin, for a bakestore worker, like checking orders for this day,tomorrow, signing orders as completed etc. )
 
 ## TODO features
 - Better layout and GUI(I don't like how app looks but it's still in progress)
-- Admin account (I want to make a special options for user who's signed as an admin, for a bakestore worker, like checking orders for this day,tomorrow, signing orders as completed etc. )
-
+- Cutting picture when adding product as admin
 
 
 ### Main targets of this app : 
