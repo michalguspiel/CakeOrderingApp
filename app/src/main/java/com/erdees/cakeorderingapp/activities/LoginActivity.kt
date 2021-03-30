@@ -1,8 +1,10 @@
 package com.erdees.cakeorderingapp.activities
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.Toast
@@ -55,8 +57,8 @@ class LoginActivity: AppCompatActivity() {
 
         /**Was losing my mind with making this status bar translucent and same color as main activity
          * this is workaround cause otherwise status bar is gray for no reason */
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+       // window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+       // window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
 
 
         /**Binders*/

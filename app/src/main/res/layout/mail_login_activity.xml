@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingHorizontal="30dp"
-    android:background="@color/pink_200"
+    android:background="@drawable/ic_google_pixel_4__4xl___4"
     >
 
     <RelativeLayout

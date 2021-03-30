@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<LinearLayout
     android:id="@+id/each_product_additional_recycler_card"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="240dp"
+    android:background="@null"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
@@ -12,9 +13,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="12dp"
+        android:background="@null"
         android:orientation="vertical"
         >
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="1dp"
+        android:layout_marginHorizontal="10dp"
+        android:background="@drawable/image_background"
+        android:orientation="vertical"
+        >
         <ImageView
             android:id="@+id/each_product_picture_additional_recycler"
             android:layout_width="200dp"
@@ -24,20 +34,22 @@
             android:scaleType="center"
             tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/each_product_name_additional_recycler"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="65dp"
-        android:layout_gravity="center"
         android:layout_marginTop="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
         tools:text="Chocolate wonder banana"
-        android:textColor="@color/pink_200"
+        android:textColor="@color/black"
         android:textSize="22sp"
-        android:textStyle="normal" />
+        android:fontFamily="@font/signika_semibold"/>
 
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</LinearLayout>

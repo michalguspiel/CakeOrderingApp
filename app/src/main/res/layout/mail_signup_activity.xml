@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingHorizontal="30dp"
-    android:background="@color/pink_200"
+    android:background="@drawable/ic_google_pixel_4__4xl___4"
     >
 
     <RelativeLayout
@@ -134,7 +134,7 @@
         android:layout_height="60dp"
         android:layout_marginTop="24dp"
         android:gravity="center"
-        android:text="Sign in"
+        android:text="Sign up"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/relative_layout_3" />

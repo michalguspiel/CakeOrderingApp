@@ -23,7 +23,7 @@
         </activity>
         <activity
             android:name="com.erdees.cakeorderingapp.activities.LoginActivity"
-            android:theme="@style/AppTheme">
+          >
         </activity>
         <activity
             android:name="com.erdees.cakeorderingapp.activities.MailLoginActivity"

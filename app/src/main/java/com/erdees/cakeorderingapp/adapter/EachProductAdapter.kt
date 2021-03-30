@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.FragmentManager
@@ -43,7 +44,7 @@ class EachProductAdapter( options: FirestorePagingOptions<Products>, val activit
             holder.itemView.findViewById<ImageView>(R.id.each_product_picture_additional_recycler)
         val name =
             holder.itemView.findViewById<TextView>(R.id.each_product_name_additional_recycler)
-        val cardView = holder.itemView.findViewById<CardView>(R.id.each_product_additional_recycler_card)
+        val cardView = holder.itemView.findViewById<LinearLayout>(R.id.each_product_additional_recycler_card)
         Glide.with(activity)
             .load(model.productPictureUrl)
             .centerCrop()

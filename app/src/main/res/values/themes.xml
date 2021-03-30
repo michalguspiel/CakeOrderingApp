@@ -6,11 +6,11 @@
         <item name="colorPrimaryVariant">@color/pink_700</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorSecondary">@color/pink_500</item>
+        <item name="colorSecondaryVariant">@color/pink_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/pink_700</item>
+        <item name="android:statusBarColor">@color/fui_transparent</item>
         <!-- Customize your theme here. -->
 
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
@@ -44,6 +44,7 @@
         <item name="android:fontFamily">@font/signika_regular</item>
         <item name="android:textViewStyle">@style/SignikaTextViewStyle</item>
         <item name="android:buttonStyle">@style/SignikaButtonStyle</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
 </resources>
