@@ -1,6 +1,7 @@
 package com.erdees.cakeorderingapp.adapter
 
 import android.app.Activity
+import android.media.Image
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -39,24 +40,29 @@ class EachProductAdapter( options: FirestorePagingOptions<Products>, val activit
 
     }
 
+    fun setPicture(imageUrl : String,image : ImageView){
+        Glide.with(activity)
+            .load(imageUrl)
+            .centerCrop()
+            .into(image)
+    }
+
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int,model:Products) {
-        val picture =
+        val image =
             holder.itemView.findViewById<ImageView>(R.id.each_product_picture_additional_recycler)
         val name =
             holder.itemView.findViewById<TextView>(R.id.each_product_name_additional_recycler)
         val cardView = holder.itemView.findViewById<LinearLayout>(R.id.each_product_additional_recycler_card)
-        Glide.with(activity)
-            .load(model.productPictureUrl)
-            .centerCrop()
-            .into(picture)
+        setPicture(model.productPictureUrl,image)
         name.text = model.productName
         cardView.setOnClickListener {
-            Log.i("eachProductAdapter",viewModel.getProduct.value.toString())
-            viewModel.addProductToList(viewModel.getProduct.value!!) // to add this viewmodel to list as history // sure this is not null because to get here there has to be something
+            addCurrentProductToBackStack()
             viewModel.setProduct(model) // setting a new model for viewmodel
             notifyDataSetChanged()
         }
     }
-
+    private fun addCurrentProductToBackStack(){
+        viewModel.addProductToList(viewModel.getProduct.value!!)
+    }
 
 }

@@ -41,8 +41,8 @@ class MainActivityRecyclerAdapter(
     ) {
 
     val db = Firebase.firestore
-    val eachProductFragment =  EachProductFragment()
-    val productsFragment = ProductsFragment()
+    private val eachProductFragment =  EachProductFragment()
+    private val productsFragment = ProductsFragment()
     companion object {
         private const val normalItem = 1
         private const val storePresentation = 0
@@ -56,12 +56,19 @@ class MainActivityRecyclerAdapter(
 
     private fun sendMail(address: Array<String> ) {
         val intent = Intent(Intent.ACTION_SENDTO)
-        intent.data = Uri.parse("mailto:") // only email apps should handle this
+        intent.data = Uri.parse("mailto:")
         intent.putExtra(Intent.EXTRA_EMAIL, address)
         intent.putExtra(Intent.EXTRA_SUBJECT, "subject")
         startActivity(this.activity,intent,null)
     }
 
+    private fun setPicture(imageUrl: String, image: ImageView, height: Int){
+        Glide.with(activity)
+            .load(imageUrl)
+            .override(screenWidth, height)
+            .centerCrop()
+            .into(image)
+    }
 
     override fun onBindViewHolder(
         holder: MainActivityRecyclerAdapter.PresentedItemViewHolder,
@@ -76,13 +83,9 @@ class MainActivityRecyclerAdapter(
                 val button = holder.itemView.findViewById<Button>(R.id.main_recycler_more)
                 name.text = model.name
                 desc.text = model.description
-                Glide.with(activity)
-                    .load(model.pictureUrl)
-                    .override(screenWidth, 400)
-                    .centerCrop()
-                    .into(image)
+                setPicture(model.pictureUrl,image,400)
                 button.setOnClickListener {
-                    db.collection("products").document(model.productId).get()// get productid from productforrecycler
+                    db.collection("products").document(model.productId).get() // get productid from productforrecycler
                         .addOnSuccessListener {
                             viewModel.setProduct(it.toObject(Products::class.java)!!)       //set it in viewmodel
                             openFragment(eachProductFragment,EachProductFragment.TAG,supportFragmentManager,R.id.container)    // opens fragment
@@ -114,10 +117,7 @@ class MainActivityRecyclerAdapter(
             }
             morePastries -> {
                 val image = holder.itemView.findViewById<ImageView>(R.id.more_pastries_image)
-                Glide.with(activity)
-                    .load(model.pictureUrl)
-                    .override(screenWidth, 500)
-                    .into(image)
+                setPicture(model.pictureUrl,image,500)
                 val window = holder.itemView.findViewById<LinearLayout>(R.id.more_pastries_window)
                 window.setOnClickListener {
                     openFragment(productsFragment,ProductsFragment.TAG,supportFragmentManager,R.id.container)
@@ -139,17 +139,17 @@ class MainActivityRecyclerAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): MainActivityRecyclerAdapter.PresentedItemViewHolder {
+    ): PresentedItemViewHolder {
         when (viewType) {
             normalItem -> {
                 val view = LayoutInflater.from(activity)
                     .inflate(R.layout.main_recycler_item, parent, false)
-                return MainActivityRecyclerAdapter.PresentedItemViewHolder(view)
+                return PresentedItemViewHolder(view)
             }
             storePresentation -> {
                 val view = LayoutInflater.from(activity)
                     .inflate(R.layout.horizontal_recycler_view, parent, false)
-                return MainActivityRecyclerAdapter.PresentedItemViewHolder(view)
+                return PresentedItemViewHolder(view)
             }
             contactItem -> {
                 val view = LayoutInflater.from(activity)

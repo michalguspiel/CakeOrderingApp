@@ -278,19 +278,6 @@ class AdminAddProductsFragment : Fragment() {
             .setCropShape(CropImageView.CropShape.RECTANGLE)
             .start(context!!, this);
     }
-/**
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            val result = CropImage.getActivityResult(data)
-            if (resultCode == RESULT_OK) {
-                val resultUri = result.uri
-                imageView.setImageURI(resultUri)
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                val error = result.error
-            }
-        }
-    }
-*/
 
 
 

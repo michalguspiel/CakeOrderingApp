@@ -38,8 +38,6 @@ class LoginActivity: AppCompatActivity() {
         setContentView(R.layout.login_activity)
 
 
-        /**Functions
-         * */
         fun googlelogin() {
             Log.i(TAG, "LOGIN")
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -53,12 +51,6 @@ class LoginActivity: AppCompatActivity() {
             startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN)
         }
         auth = Firebase.auth
-
-
-        /**Was losing my mind with making this status bar translucent and same color as main activity
-         * this is workaround cause otherwise status bar is gray for no reason */
-       // window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-       // window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
 
 
         /**Binders*/
@@ -156,9 +148,7 @@ class LoginActivity: AppCompatActivity() {
                     this.finish()
                 }
             }
-
     }
-
 
     companion object {
         const val TAG = "LoginActivity"

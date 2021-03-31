@@ -1,5 +1,6 @@
 package androidx.recyclerview.widget.com.erdees.cakeorderingapp.adapter
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +13,7 @@ import com.erdees.cakeorderingapp.R
 import com.erdees.cakeorderingapp.formatNumber
 import com.erdees.cakeorderingapp.model.UserShoppingCart
 
-/**Adapter which populates recycler view inside each order fragment
- * I could try to use same adapter as
- * CartItemsRecyclerAdapter
- * but there's no point of using options, all I need to do is to take
- * shopping cart list from order and pass it here
- * */
+
 class EachOrderCartItemsAdapter(
     val itemList: List<UserShoppingCart>,
     val activity: Activity
@@ -29,6 +25,16 @@ class EachOrderCartItemsAdapter(
         return ItemViewHolder(view)
     }
 
+    private fun setPicture(imageUrl : String, image: ImageView){
+        Glide.with(activity)
+            .load(imageUrl)
+            .override(100, 100)
+            .centerCrop()
+            .into(image)
+    }
+
+
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val image = holder.itemView.findViewById<ImageView>(R.id.each_order_recycler_item_image)
         val name = holder.itemView.findViewById<TextView>(R.id.each_order_recycler_item_name)
@@ -39,12 +45,8 @@ class EachOrderCartItemsAdapter(
         quantity.text ="Quantity: " + itemList[position].quantity.toString()
         val totalPriceOfProduct = itemList[position].productPrice * itemList[position].quantity
         totalPrice.text ="Total price: " +  formatNumber(totalPriceOfProduct)
+        setPicture(itemList[position].productPictureUrl,image)
 
-        Glide.with(activity)
-            .load(itemList[position].productPictureUrl)
-            .override(100, 100)
-            .centerCrop()
-            .into(image)
     }
 
     override fun getItemCount(): Int {

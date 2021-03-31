@@ -60,8 +60,8 @@ class ProductsFragment: Fragment() {
         recyclerView.adapter = adapter
 
         //
-         recyclerView.layoutManager = AutoFitGridLayoutManager(requireContext(),500)
-        //recyclerView.layoutManager = GridLayoutManager(requireContext(),numberOfColumns)
+        // recyclerView.layoutManager = AutoFitGridLayoutManager(requireContext(),500)
+        recyclerView.layoutManager = GridLayoutManager(requireContext(),numberOfColumns)
         val divider = MiddleDividerItemDecoration(requireContext(),MiddleDividerItemDecoration.ALL)
             divider.setDividerColor(R.color.pink_700)
         recyclerView.addItemDecoration(divider)

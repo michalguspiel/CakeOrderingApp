@@ -23,13 +23,11 @@ class MailLoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.mail_login_activity)
 
-        // Initialize Firebase Auth
         auth = Firebase.auth
 
         val signUpText = findViewById<TextView>(R.id.mail_sign_up_text)
         val signInBtn = findViewById<Button>(R.id.mail_create_account_button)
         val restartPassword = findViewById<TextView>(R.id.mail_reset_password_text)
-
 
         signUpText.setOnClickListener {
             val signUpActivity = Intent(this, SignUpActivity::class.java)

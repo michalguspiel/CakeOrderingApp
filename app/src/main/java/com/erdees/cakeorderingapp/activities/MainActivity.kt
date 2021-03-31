@@ -1,6 +1,6 @@
 package com.erdees.cakeorderingapp.activities
 
-import android.app.Application
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -12,20 +12,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
-import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.SharedPreferences
 import androidx.recyclerview.widget.com.erdees.cakeorderingapp.activities.AdminActivity
 import com.erdees.cakeorderingapp.Constants
 import com.erdees.cakeorderingapp.R
-import com.erdees.cakeorderingapp.checkIfContainSpecial
 import com.erdees.cakeorderingapp.fragments.*
-import com.erdees.cakeorderingapp.model.Order
 import com.erdees.cakeorderingapp.model.Products
 import com.erdees.cakeorderingapp.openFragment
 import com.erdees.cakeorderingapp.viewmodel.MainActivityViewModel
@@ -39,8 +34,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.stripe.android.PaymentConfiguration
-import com.stripe.android.Stripe
 import java.time.LocalDate
 
 
@@ -62,6 +55,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var footer: Button
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var listOfProductsInBackStack: List<Products>
+    private lateinit var sharedPreferences : SharedPreferences
 
     lateinit var groupedDateList: Map<LocalDate,List<LocalDate>>
     var isUserAdmin = false
@@ -74,26 +68,20 @@ class MainActivity : AppCompatActivity() {
     private val myCartFragment = MyCartFragment()
     private val myOrdersFragment = MyOrdersFragment()
     private val calendarFragment = CalendarFragment()
-    /** If there are products in viewmodel product list
-    set last product from list as main product(presented in eachProductFramgnet)
-    then delete that from list
-    and return.
 
-    IDK if that's correct approach but when doing in this way
-    there's no need to reload fragment,
-    and program keeps track of loaded products.
 
-    So productList in productDAO is like backstack of
-    presented products in EachProductFragment
-     */
+fun setLastProductFromTheListToPresentIt(){
+    viewModel.setProduct(viewModel.getProductList.value!!.last())
+}
+
     override fun onBackPressed() {
-        if(supportFragmentManager.findFragmentByTag("DeliveryMethodFragment")?.isVisible == true){
-            if(viewModel.getDate.value != null){
-            viewModel.clearDate() // if back btn is pressed when deliveryMethodFragment is visible and getDate in viewmodel isn't empty just clear date in viewmodel
-            return                  // this causes scrollview to scroll up inside deliveryMethodFragment.
+        if(isDeliveryMethodFragmentOpened() == true){
+            if(isDeliveryDatePicked()){
+            viewModel.clearDate()
+            return
         }
-            else if(viewModel.getOccupiedDate().value != null){ //
-                viewModel.setOccupiedDate(null)
+            else if(hasUserPickedOccupiedDate()){ //
+                restartPickingDate()
                 return
             }
         }
@@ -103,9 +91,9 @@ class MainActivity : AppCompatActivity() {
         }
         val eachProductFragment = supportFragmentManager.findFragmentByTag(EachProductFragment.TAG)
         if (eachProductFragment != null) {
-            if (!viewModel.getProductList.value.isNullOrEmpty() && eachProductFragment.isVisible) { // if eachProductFragment is displayed and getProductList isn't empty set
-                viewModel.setProduct(viewModel.getProductList.value!!.last())   // set last product from the list to present it through viewModel
-                viewModel.removeLastProductFromList()               // and remove it from listOfProducts
+            if (!viewModel.getProductList.value.isNullOrEmpty() && eachProductFragment.isVisible) {
+                setLastProductFromTheListToPresentIt()
+                viewModel.removeLastProductFromList() // and remove it from listOfProducts
                 return
             }
         }
@@ -116,7 +104,6 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "on start")
-        // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
         updateUI(currentUser)
     }
@@ -134,13 +121,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUI(user: FirebaseUser?) {
-        Log.i(TAG, "UPDATE UI CASTED")
         sideNav.menu.findItem(R.id.mi_admin).isVisible = false
 
         if (user == null) {
             welcomeTextView.text = ""
             footer.visibility = View.VISIBLE
-            Log.i(TAG, "user update ui failed")
             cartButton.visibility = View.GONE
             sideNav.menu.findItem(R.id.mi_logout).isVisible = false
             return
@@ -177,12 +162,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         db = Firebase.firestore
+        auth = Firebase.auth
 
-        /**Shared preferences,
-         * whenever app starts
-         * common data is downloaded from server and saved in shared preferences*/
-        val sharedPreferences = SharedPreferences(this)
-
+        sharedPreferences = SharedPreferences(this)
+        downloadDeliveryPricesFromServer()
+        downloadWaitTimeFromServer()
 
         /**Get special orders dates
          * If order doesnt contain special product return.
@@ -216,34 +200,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        /**Download correct delivery pricing from server
-         * and save it in shared preferences
-          They won't be changed often and this approach reduces document reads, at least I guess...*/
-        val pricesDocRef = db.collection("constants").document("prices")
-        pricesDocRef.get().addOnSuccessListener {
-            sharedPreferences.save("prePaidCost",it[Constants.prePaidCost].toString())
-            sharedPreferences.save("paidAtDeliveryCost",it[Constants.paidAtDeliveryCost].toString())
-        }
-        val waitTimeDocRef = db.collection("constants").document("specialWaitTime")
-        waitTimeDocRef.get().addOnSuccessListener {
-            sharedPreferences.save("waitTime", it[Constants.waitTime].toString())
-        }
-
-        /**Get Screen width*/
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val screenWidth = displayMetrics.widthPixels
-
 
         /**Initialize Viewmodel and get products list and last product in that list
-         *
-         * This allows coming back to previous watched product with backBTN without changing the whole fragment,
+         * This allows coming back to previous watched product with back button without changing the whole fragment,
          * just changing data which product is being displayed.*/
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
-        viewModel.getProductList.observe(this, Observer { list ->
+        viewModel.getProductList.observe(this,  { list ->
             listOfProductsInBackStack = list
         })
-
 
         val manager: FragmentManager = supportFragmentManager
 
@@ -255,14 +219,12 @@ class MainActivity : AppCompatActivity() {
 
         /**Functions*/
         fun logout() {
-            Log.i(TAG, "LOGOUT")
             Firebase.auth.signOut()
             LoginManager.getInstance().logOut()
             updateUI(null)
             val thisActivityIntent = Intent(this, MainActivity::class.java)
             thisActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(thisActivityIntent)
-
         }
 
         fun openLoginActivity() {
@@ -281,15 +243,11 @@ class MainActivity : AppCompatActivity() {
             openFragment(myCartFragment, MyCartFragment.TAG, supportFragmentManager,R.id.container)
         }
 
-        /**Firebase*/
-        auth = Firebase.auth
 
 
         /**Side drawer menu */
         drawerLayout = findViewById(R.id.drawer_layout)
-        val toggle = ActionBarDrawerToggle(this, drawerLayout, 0, 0)
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        drawerLayout.setDrawerLayout(this)
 
         sideNav = findViewById(R.id.drawer)
         val sideNavListener =
@@ -298,7 +256,6 @@ class MainActivity : AppCompatActivity() {
                     R.id.mi_account -> {
                         if (auth.currentUser == null) openLoginActivity()
                         else openFragment(myAccountFragment, MyAccountFragment.TAG, manager,R.id.container)
-
                     }
                     R.id.mi_orders -> {
                         if (auth.currentUser == null) openLoginActivity()
@@ -309,7 +266,6 @@ class MainActivity : AppCompatActivity() {
                         startActivity(adminActivity,savedInstanceState)
                     }
                     R.id.mi_calendar -> {
-
                         openFragment(calendarFragment,CalendarFragment.TAG,manager,R.id.container)
                     }
                     R.id.mi_products -> {
@@ -328,6 +284,39 @@ class MainActivity : AppCompatActivity() {
         sideNav.setNavigationItemSelectedListener(sideNavListener)
     }
 
+    private fun DrawerLayout.setDrawerLayout(activity: Activity){
+        val toggle = ActionBarDrawerToggle(activity, this, 0, 0)
+        this.addDrawerListener(toggle)
+        toggle.syncState()
+    }
 
+    private fun downloadDeliveryPricesFromServer(){
+        val pricesDocRef = db.collection("constants").document("prices")
+        pricesDocRef.get().addOnSuccessListener {
+            sharedPreferences.save("prePaidCost",it[Constants.prePaidCost].toString())
+            sharedPreferences.save("paidAtDeliveryCost",it[Constants.paidAtDeliveryCost].toString())
+        }
+    }
+
+    private fun downloadWaitTimeFromServer(){
+        val waitTimeDocRef = db.collection("constants").document("specialWaitTime")
+        waitTimeDocRef.get().addOnSuccessListener {
+            sharedPreferences.save("waitTime", it[Constants.waitTime].toString())
+        }
+    }
+
+    private fun isDeliveryMethodFragmentOpened():Boolean? {
+        return supportFragmentManager.findFragmentByTag("DeliveryMethodFragment")?.isVisible
+    }
+
+    private fun isDeliveryDatePicked():Boolean {
+        return viewModel.getDate.value != null
+    }
+
+    private fun hasUserPickedOccupiedDate() : Boolean {
+        return viewModel.getOccupiedDate().value != null
+    }
+
+    private fun restartPickingDate() = viewModel.setOccupiedDate(null)
 }
 

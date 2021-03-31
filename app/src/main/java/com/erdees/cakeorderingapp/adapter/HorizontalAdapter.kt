@@ -24,15 +24,19 @@ class HorizontalAdapter (private val picList: List<String>, private val activity
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        Glide.with(activity)
-            .load(picList[position])
-            .override(screenWidth, 300)
-            .centerCrop()
-            .into(holder.image)
+        setPicture(picList[position],holder.image)
     }
 
     override fun getItemCount(): Int {
         return picList.size
+    }
+
+    private fun setPicture(imageUrl: String, image: ImageView){
+        Glide.with(activity)
+            .load(imageUrl)
+            .override(screenWidth, 300)
+            .centerCrop()
+            .into(image)
     }
 
 }
