@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -34,6 +34,8 @@
         <activity android:name="androidx.recyclerview.widget.com.erdees.cakeorderingapp.activities.AdminActivity"/>
         <activity android:name=".activities.RestartPasswordActivity"
         />
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
 
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
