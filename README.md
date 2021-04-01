@@ -28,6 +28,7 @@ I think app would look better if the pics were a bit more professional(right now
 - MVVM pattern
 - Google authentication
 - Facebook authetication
+- Cropping library - Android Image Cropper - ArthurHub
 - Email Sign up and sign in
 
 
@@ -43,10 +44,10 @@ I think app would look better if the pics were a bit more professional(right now
 - Store contact options
 - Calendar (Let's say shop cannot handle to bake more than 3 birthday cakes a day due to space limit I want calendar when user can see if birthday cakes are available for this day)
 - Admin account (Checking orders, signing them as completed, adding new products to the shop. )
+- Cropping image while adding product as an admin
 
-## TODO features
+## TODO
 - Better layout and GUI(I don't like how app looks but it's still in progress)
-- Cutting picture when adding product as admin
 
 
 ### Main targets of this app : 
