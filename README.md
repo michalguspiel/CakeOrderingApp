@@ -18,6 +18,7 @@ I think app would look better if the pics were a bit more professional(right now
    <img src="https://user-images.githubusercontent.com/70368829/112008372-1743ae00-8b2e-11eb-98b9-ace3f9c0b1fc.png" width="320">
    <img src="https://user-images.githubusercontent.com/70368829/112008376-17dc4480-8b2e-11eb-9ecc-02cda98edd04.png" width="320">
    <img src="https://user-images.githubusercontent.com/70368829/112008385-1a3e9e80-8b2e-11eb-8fd6-f2255218f722.png" width="320">
+  <img src="https://user-images.githubusercontent.com/70368829/118451847-52adc380-b6fe-11eb-9a72-58b9dd72abd9.png" width="320">
 </p>
 
 
