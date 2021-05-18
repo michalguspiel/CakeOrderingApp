@@ -9,6 +9,12 @@ I think app would look better if the pics were a bit more professional(right now
 
 
 ## Screenshots
+![Screenshot_1621326116](https://user-images.githubusercontent.com/70368829/118619197-09787500-b7cd-11eb-8549-61980cea0087.png)
+![Screenshot_1621326125](https://user-images.githubusercontent.com/70368829/118619232-1006ec80-b7cd-11eb-89f5-f00a5ec1e16f.png)
+![Screenshot_1621326146](https://user-images.githubusercontent.com/70368829/118619250-14330a00-b7cd-11eb-8fe6-ab3fae93aa67.png)
+![Screenshot_1621326165](https://user-images.githubusercontent.com/70368829/118619253-15643700-b7cd-11eb-8ba2-c5662068c86e.png)
+![Screenshot_1621326200](https://user-images.githubusercontent.com/70368829/118619259-172dfa80-b7cd-11eb-933a-c7a9a1a79625.png)
+![Screenshot_1621326226](https://user-images.githubusercontent.com/70368829/118619261-172dfa80-b7cd-11eb-8d0e-bfc9d143fd35.png)
 
 <p align="center">
  <img src="https://user-images.githubusercontent.com/70368829/112008343-0f840980-8b2e-11eb-96b9-cf85604e6054.png" width="320">
